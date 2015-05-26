@@ -1,0 +1,12 @@
+{% extends "stock/base.html" %}
+{% block contents %}
+<h4><a href="{% url 'list' %}">List</a></h4>
+
+{{ stock_id }} ( {{ stock_name }} ) - {{ stock_gubun }} : {{ stock_price }}원<br />
+Stock Contents :
+<pre>
+{{ stock_content }}
+</pre>
+<img src="{{ stock_image }}">
+<p>Sub Section</p>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "stock/base.html" %}
+{% block title %}Stock List {% endblock %}
+{% block contents %}
+<div>
+<form method="POST" action="/stock/add" class="form-inline">
+{% csrf_token  %}
+<h3>종목추가</h3>
+<label class="sr-only" for="stock_code">종목코드 : </label><input class="form-control" type="text" name="stock_code" id="stock_code" placeholder="종목코드"  />
+<label class="sr-only" for="stock_name">종목명 : </label><input class="form-control" type="text" name="stock_name" id="stock_name" placeholder="종목명" />
+<label class="sr-only" for="stock_gubun">구분 : </label><input class="form-control" type="text" name="stock_gubun" id="stock_gubun" placeholder="코스피" />
+<button class="form-control btn btn-success" >추가</button>
+</form>
+</div>
+<br />
+<div>
+<h3>참고사이트</h3>
+<a href="http://paxnet.moneta.co.kr/stock/searchStock/searchStock.jsp?section=0" class="btn btn-primary">코스피</a>
+<a href="http://paxnet.moneta.co.kr/stock/searchStock/searchStock.jsp?section=1" class="btn btn-primary">코스닥</a>
+<br />
+<h3>종목코드 추출</h3>
+<a href="{% url 'stock_extract' 0 %}" class="btn btn-primary btn-danger">코스피 추출</a>
+<a href="{% url 'stock_extract' 1 %}" class="btn btn-primary btn-primary">코스닥 추출</a>
+<a href="{% url 'stock_delete_all' %}" class="btn btn-primary btn-warning">전체 삭제</a>
+<br />
+<p></p>	
+<table class="table table-bordered table-hover">
+<tr>
+<th>종목코드</th>
+<th>종목명</th>
+<th>구분</th>
+</tr>
+{% for stock in stocks %}
+<tr>
+<td style="text-align:center"><a href="{% url 'stock_id' stock.stock_code %}">{{ stock.stock_code }}</td>
+<td>{{ stock.stock_name }}</td>
+<td style="text-align:center">{{ stock.stock_gubun }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}
