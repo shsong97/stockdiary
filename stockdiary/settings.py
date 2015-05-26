@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'wpqh8$7o3rk#6aarf$()scxcu%!4*lrhj6lj8#vn(gbx3ktj8v'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -104,6 +104,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.dirname(os.path.realpath(__file__))
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
+    '/app/stockdiary',
 )
 
 # List of finder classes that know how to find static files in
