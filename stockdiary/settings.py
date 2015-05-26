@@ -101,10 +101,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.dirname(os.path.realpath(__file__))
+STATIC_ROOT = 'staticfiles' #os.path.dirname(os.path.realpath(__file__))
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
-    '/app/stockdiary',
 )
 
 # List of finder classes that know how to find static files in
