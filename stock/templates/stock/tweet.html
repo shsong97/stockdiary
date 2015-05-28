@@ -1,0 +1,13 @@
+
+{% extends "stock/base.html" %}
+{% block contents %}
+<h4>Tweet Test</h4>
+
+<form method="post" action="{% url 'tweet_test_send' %}" class="form-inline">
+{% csrf_token  %}
+<input class="form-control" type="text" id="tweet_id" name="tweet_id" value="@shsong971" />
+<input class="form-control" type="text" id="tweet_text" name="tweet_text" />
+<button class="form-control">전송</button>
+</form>
+{% endblock %}
+

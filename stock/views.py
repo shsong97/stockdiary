@@ -95,3 +95,27 @@ def stock_search(request):
 			return HttpResponseRedirect(url)
 
 	return HttpResponseRedirect('/stock/list')
+
+def tweet_test(request):
+	objs = Stock.objects.all()
+	variable = RequestContext(request,{
+		'stocks':objs,
+		})
+	return render_to_response('stock/tweet.html', variable)
+
+def tweet_test_send(request):
+	objs = Stock.objects.all()
+	variable = RequestContext(request,{
+		'stocks':objs,
+		})
+	tweet_id = request.POST['tweet_id']
+	tweet_text = request.POST['tweet_text']
+	import tweet
+	try:
+		tweet.api.send_direct_message(screen_name=tweet_id,text=tweet_text)
+	except:
+		print 'error'
+	return render_to_response('stock/tweet.html',variable)
+
+def alarm(request):
+	return HttpResponse('hello')

@@ -2,7 +2,7 @@
 {% block title %}Stock List {% endblock %}
 {% block contents %}
 <div>
-<form method="POST" action="/stock/add" class="form-inline">
+<form method="POST" action="{% url 'stock_add' %}" class="form-inline">
 {% csrf_token  %}
 <h3>종목추가</h3>
 <label class="sr-only" for="stock_code">종목코드 : </label><input class="form-control" type="text" name="stock_code" id="stock_code" placeholder="종목코드"  />

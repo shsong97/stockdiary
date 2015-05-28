@@ -96,13 +96,15 @@ th {
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <li><a href="{% url 'list' %}" >종목리스트</a></li>
-            <li><a href="#">관심종목</a></li>
+            <li><a href="{% url 'list' %}" >종목 등록</a></li>
+            <li><a href="{% url 'tweet_test' %}">트위터 등록</a></li>
           </ul>
           <ul class="nav nav-sidebar">
             <li><a href="#">오늘의 추천주</a></li>
+            <li><a href="#">관심종목 등록</a></li>
             <li><a href="#">매매일지</a></li>
-            <li><a href="#">종목 알림설정</a></li>
+            <li><a href="{% url 'alarm' %}">종목 알림설정</a></li>
+            <li><a href="#">목표가 설정</a></li>
           </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
