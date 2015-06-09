@@ -23,7 +23,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 # from stock import views
 urlpatterns = [
 	url(r'^$', 'stock.views.home', name='home'),
-    url(r'^admin/', include(admin.site.urls)),
- 	url(r'^stock/', include('stock.urls')),   
- 	#url(r'^static/(?P<path>.*)$', views.serve),
+	url(r'^admin/', include(admin.site.urls)),
+	url(r'^stock/', include('stock.urls')),   
+	#url(r'^static/(?P<path>.*)$', views.serve),
 ] #+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
