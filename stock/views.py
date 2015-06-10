@@ -6,6 +6,9 @@ from django.template import RequestContext
 from bs4 import BeautifulSoup
 import urllib
 from stock.models import *
+from django.contrib.auth.decorators import login_required
+
+
 # Create your views here.
 def home(request):
 	return HttpResponseRedirect('/stock/list')
@@ -114,8 +117,63 @@ def tweet_test_send(request):
 	try:
 		tweet.api.send_direct_message(screen_name=tweet_id,text=tweet_text)
 	except:
-		print 'error'
+		pass
+
 	return render_to_response('stock/tweet.html',variable)
 
 def alarm(request):
 	return HttpResponse('hello')
+
+
+@login_required
+def favorite(request):
+	favorites = Favorite.objects.filter(stock_user=request.user)
+
+
+	objs = Stock.objects.all()
+	variable = RequestContext(request,{
+		'stocks' : objs,
+		'favorites' : favorites,
+		})
+		
+	return render_to_response('stock/favorites.html',variable)
+
+
+@login_required
+def favorite_add(request):
+	objs = Stock.objects.all()
+	variable = RequestContext(request,{
+		'stocks' : objs,
+		})
+
+	if request.POST:
+		user_id = request.POST['user_id']
+		stock_code = request.POST['stock_code']
+
+		user_error = stock_error = False
+		user = User.objects.filter(username=user_id)
+		if user is None:
+			user_error = True
+
+		stock = Stock.objects.filter(stock_code=stock_code)
+		if stock is None:
+			stock_error = True
+
+
+		if user_error or stock_error:
+			return render_to_response('stock/favorite_add.html',variable)
+
+		else:
+			favorite, created = Favorite.objects.get_or_create(stock_user=user[0], stock_code=stock[0])
+			return HttpResponseRedirect('/stock/favorite')
+	else:
+		return render_to_response('stock/favorite_add.html',variable)
+
+@login_required
+def favorite_delete(request, user_id, stock_code):
+	user =  User.objects.filter(username=user_id)
+	stock = Stock.objects.filter(stock_code=stock_code)
+	favorite = Favorite.objects.filter(stock_user=user, stock_code=stock)
+	favorite.delete()
+		
+	return HttpResponseRedirect('/stock/favorite')

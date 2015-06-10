@@ -1,0 +1,26 @@
+{% extends "stock/base.html" %}
+{% block contents %}
+<h4>Favorites</h4>
+
+<table class="table table-bordered table-hover">
+<tr>
+	<th>StockUser</th>
+	<th>UserName</th>
+	<th>StockCode</th>
+	<th>StockName</th>
+	<th>Delete</th>
+</tr>
+{% for favorite in favorites %}
+<tr>
+	<td>{{ favorite.stock_user.username }}</td>
+	<td>{{ favorite.stock_user.last_name}}{{ favorite.stock_user.first_name}}</td>
+	<td>{{ favorite.stock_code.stock_code }}</td>
+	<td>{{ favorite.stock_code.stock_name }}</td>
+	<td><a href="{% url 'favorite_delete' favorite.stock_user.username favorite.stock_code.stock_code %}">Delete</a></td>
+</tr>
+
+{% endfor %}
+</table>
+<a href="{% url 'favorite_add' %}" class="btn btn-primary">Add</a>
+{% endblock %}
+

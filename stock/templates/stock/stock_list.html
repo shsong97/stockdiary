@@ -3,7 +3,7 @@
 {% block contents %}
 <div>
 <form method="POST" action="{% url 'stock_add' %}" class="form-inline">
-{% csrf_token  %}
+{% csrf_token %}
 <h3>종목추가</h3>
 <label class="sr-only" for="stock_code">종목코드 : </label><input class="form-control" type="text" name="stock_code" id="stock_code" placeholder="종목코드"  />
 <label class="sr-only" for="stock_name">종목명 : </label><input class="form-control" type="text" name="stock_name" id="stock_name" placeholder="종목명" />

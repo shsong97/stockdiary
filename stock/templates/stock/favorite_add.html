@@ -1,0 +1,20 @@
+{% extends "stock/base.html" %}
+{% block contents %}
+<h4>Favorite Add</h4>
+<form method="post" action="{% url 'favorite_add' %}">
+{% csrf_token %}
+
+<table class="table table-bordered table-hover">
+<tr>
+	<th>StockUser</th>
+	<th>StockCode</th>
+</tr>
+<tr>
+	<td><input type="text" name="user_id" id="user_id" /></td>
+	<td><input type="text" name="stock_code" id="stock_code" /></td>
+</tr>
+</table>
+<button type="submit" class="btn btn-primary">Add</button>
+</form>
+{% endblock %}
+
