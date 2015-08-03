@@ -148,6 +148,7 @@ def stock_search(request):
 def search_stock(request):
 	objs = Stock.objects.all()
 	stock_items = []
+	_pbr = _per_from = _per_to = 0
 	if request.POST:
 		if request.POST['pbr']=='':
 			_pbr=9999
