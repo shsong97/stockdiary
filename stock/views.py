@@ -8,7 +8,7 @@ import urllib
 from stock.models import *
 from django.contrib.auth.decorators import login_required
 
-
+STOCK_URL = 'http://finance.naver.com/item/main.nhn?code='
 # Create your views here.
 def home(request):
 	return HttpResponseRedirect('/stock/list')
@@ -22,7 +22,7 @@ def list(request):
 
 def stock_id(request, id):
 	objs = Stock.objects.all()
-	url = 'http://finance.naver.com/item/main.nhn?code='+id
+	url = STOCK_URL+id
 	html = urllib.urlopen(url)
 	soup = BeautifulSoup(html)
 	
@@ -37,6 +37,48 @@ def stock_id(request, id):
 	stock_image = soup.find_all('img',{'id':'img_cahrt_area'})
 	stock_gubun = stock_dd[2].text[-3:]
 
+	stock_informs = soup.find_all('em')
+
+	pbr = per = cns_per = cns_eps = ''
+	for info in stock_informs:
+		try:
+			if info['id']=='_pbr':
+				pbr=info.text
+			if info['id']=='_per':
+				per=info.text
+			if info['id']=='_cns_per':
+				cns_per=info.text
+			if info['id']=='_cns_eps':
+				cns_eps=info.text
+
+		except KeyError:
+			pass
+
+	cns_eps=cns_eps.replace(',','')
+
+	if per=='':
+		per=0.0
+	if pbr=='':
+		pbr=0.0
+	if cns_eps=='':
+		cns_eps=0.0
+	if cns_per=='':
+		cns_per=0.0
+
+	try:
+
+		stock = Stock.objects.filter(stock_code=stock_id)[0]
+		if stock:
+			stock_info, created = StockInform.objects.get_or_create(stock_code=stock, 
+				year='2015',
+				per = per,
+				pbr = pbr,
+				cns_per = cns_per,
+				cns_eps = cns_eps
+				)
+	except KeyError:
+		pass
+
 
 	variable = RequestContext(request,{
 		'stocks':objs,
@@ -46,6 +88,10 @@ def stock_id(request, id):
 		'stock_content':stock_content.text,
 		'stock_image' : stock_image[0]['src'],
 		'stock_gubun' : stock_gubun,
+		'pbr' : pbr,
+		'per' : per,
+		'cns_per' : cns_per,
+		'cns_eps' : cns_eps,
 		})
 	return render_to_response('stock/stock_id.html', variable)
 
@@ -98,6 +144,38 @@ def stock_search(request):
 			return HttpResponseRedirect(url)
 
 	return HttpResponseRedirect('/stock/list')
+
+def search_stock(request):
+	objs = Stock.objects.all()
+	stock_items = []
+	if request.POST:
+		if request.POST['pbr']=='':
+			_pbr=9999
+		else:
+			_pbr = request.POST['pbr']
+		
+		if request.POST['per_from']=='':
+			_per_from=-9999
+		else:		
+			_per_from = request.POST['per_from']
+
+		if request.POST['per_to']=='':
+			_per_to=9999
+		else:		
+			_per_to = request.POST['per_to']
+
+		stock_items = StockInform.objects.filter(pbr__lt=_pbr).filter(per__gt=_per_from).filter(per__lt=_per_to)
+
+
+	variable = RequestContext(request,{
+		'stocks':objs,
+		'stock_items':stock_items,
+		'pbr' : _pbr,
+		'per_from' : _per_from,
+		'per_to' : _per_to,
+		})
+	return render_to_response('stock/search_stock.html', variable)
+
 
 def tweet_test(request):
 	objs = Stock.objects.all()

@@ -36,3 +36,14 @@ class UserProfile(models.Model):
 
 	def __str__(self):
 		return self.user.username
+
+class StockInform(models.Model):
+	stock_code = models.ForeignKey(Stock)
+	year = models.IntegerField()
+	per = models.FloatField()
+	pbr = models.FloatField()
+	cns_per = models.FloatField()
+	cns_eps = models.FloatField()
+
+	def __str__(self):
+		return self.stock_code.stock_code

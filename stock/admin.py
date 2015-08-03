@@ -1,3 +1,4 @@
+# -.- coding: utf-8 -.-
 from django.contrib import admin
 from stock.models import *
 # Register your models here.
@@ -18,7 +19,13 @@ class UserProfileAdmin(admin.ModelAdmin):
 	list_filter = ('user',)
 	list_display = ('user', 'tweet_id')
 
+class StockInformAdmin(admin.ModelAdmin):
+	list_display = ("stock_code", "year", "per","pbr", "cns_eps", "cns_per", )
+	list_filter = ('stock_code',)
+	search_fields = ['^stock_code','^year']
+
 admin.site.register(Stock, StockAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
 admin.site.register(AlarmStock, AlarmStockAdmin)
+admin.site.register(StockInform, StockInformAdmin)

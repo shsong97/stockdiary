@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^extract/(\w+)$', views.stock_extract, name='stock_extract'),
     url(r'^deleteall$', views.stock_delete_all, name='stock_delete_all'),
     url(r'^search$', views.stock_search, name='stock_search'),
+    url(r'^search_stock$', views.search_stock, name='search_stock'),
 
     url(r'^tweet_test$', views.tweet_test, name='tweet_test'),
     url(r'^tweet_test_send$', views.tweet_test_send, name='tweet_test_send'),

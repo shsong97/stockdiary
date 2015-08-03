@@ -1,0 +1,44 @@
+{% extends "stock/base.html" %}
+{% block contents %}
+<h4>우량주검색</h4>
+<form method="post">
+{% csrf_token %}
+
+<table class="table table-bordered table-hover">
+<tr>
+	<th>PER FROM</th>
+	<th>PER TO</th>
+	<th>PBR</th>
+</tr>
+<tr>
+	<td><input type="text" name="per_from" id="per_from" value='{{per_from}}'/></td>
+	<td><input type="text" name="per_to" id="per_to" value='{{per_to}}'/></td>
+	<td><input type="text" name="pbr" id="pbr" value='{{pbr}}'/></td>
+</tr>
+</table>
+	<button type="submit" class="btn btn-primary">찾기</button>
+</form>
+
+<table class="table table-bordered table-hover">
+<tr>
+	<th>StockCode</th>
+	<th>StockName</th>
+	<th>PER</th>
+	<th>PBR</th>
+	<th>추정PER</th>
+	<th>추정EPS</th>
+</tr>
+{% for stock_item in stock_items %}
+<tr>
+	<td>{{ stock_item.stock_code.stock_code }}</td>
+	<td>{{ stock_item.stock_code.stock_name }}</td>
+	<td>{{ stock_item.per }}</td>
+	<td>{{ stock_item.pbr }}</td>
+	<td>{{ stock_item.cns_per }}</td>
+	<td>{{ stock_item.cns_eps }}</td>
+</tr>
+
+{% endfor %}
+</table>
+{% endblock %}
+
