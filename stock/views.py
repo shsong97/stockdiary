@@ -278,7 +278,7 @@ def favorite_delete(request, user_id, stock_code):
 def today_stock(request):
 	objs = Stock.objects.all()
 	stock_items = []
-	_pbr = 1
+	_pbr = 2
 	_per_from = 15
 	_per_to = 25
 
@@ -286,7 +286,7 @@ def today_stock(request):
 		per__gt=_per_from, 
 		per__lt=_per_to, 
 		cns_per__gt=0,
-		).filter(per__lt=F('cns_per'))
+		)
 
 	variable = RequestContext(request,{
 		'stocks':objs,
