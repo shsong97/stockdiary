@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 import urllib
 from stock.models import *
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
 
 STOCK_URL = 'http://finance.naver.com/item/main.nhn?code='
 # Create your views here.
@@ -54,7 +55,10 @@ def stock_id(request, id):
 		except KeyError:
 			pass
 
-	cns_eps=cns_eps.replace(',','')
+	per = per.replace(',','')
+	pbr = pbr.replace(',','')
+	cns_eps = cns_eps.replace(',','')
+	cns_per = cns_per.replace(',','')
 
 	if per=='':
 		per=0.0
@@ -66,16 +70,25 @@ def stock_id(request, id):
 		cns_per=0.0
 
 	try:
-
+		year = datetime.today().year
 		stock = Stock.objects.filter(stock_code=stock_id)[0]
 		if stock:
-			stock_info, created = StockInform.objects.get_or_create(stock_code=stock, 
-				year='2015',
-				per = per,
-				pbr = pbr,
-				cns_per = cns_per,
-				cns_eps = cns_eps
-				)
+			stock_infos = StockInform.objects.filter(stock_code=stock, year=year)
+			if stock_infos:
+				stock_info = stock_infos[0]
+				stock_info.per = per
+				stock_info.pbr = pbr
+				stock_info.cns_per = cns_per
+				stock_info.cns_eps = cns_eps
+				stock_info.save()
+			else:
+				stock_info, created = StockInform.objects.get_or_create(stock_code=stock, 
+					year= year,
+					per = per,
+					pbr = pbr,
+					cns_per = cns_per,
+					cns_eps = cns_eps
+					)
 	except KeyError:
 		pass
 
@@ -148,7 +161,10 @@ def stock_search(request):
 def search_stock(request):
 	objs = Stock.objects.all()
 	stock_items = []
-	_pbr = _per_from = _per_to = 0
+	_pbr = 3
+	_per_from = 10
+	_per_to = 30
+
 	if request.POST:
 		if request.POST['pbr']=='':
 			_pbr=9999
@@ -256,3 +272,19 @@ def favorite_delete(request, user_id, stock_code):
 	favorite.delete()
 		
 	return HttpResponseRedirect('/stock/favorite')
+
+
+def today_stock(request):
+	objs = Stock.objects.all()
+	stock_items = []
+	_pbr = 2
+	_per_from = 10
+	_per_to = 30
+
+	stock_items = StockInform.objects.filter(pbr__lt=_pbr, per__gt=_per_from, per__lt=_per_to, cns_per__gt=0)
+
+	variable = RequestContext(request,{
+		'stocks':objs,
+		'stock_items':stock_items,
+		})
+	return render_to_response('stock/today.html',variable)

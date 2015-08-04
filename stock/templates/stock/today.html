@@ -1,0 +1,27 @@
+{% extends "stock/base.html" %}
+{% block contents %}
+<h4>오늘의추천주</h4>
+
+<table class="table table-bordered table-hover">
+<tr>
+	<th>종목 코드</th>
+	<th>종목명</th>
+	<th>PER</th>
+	<th>PBR</th>
+	<th>추정PER</th>
+	<th>추정EPS</th>
+</tr>
+{% for stock_item in stock_items %}
+<tr>
+	<td>{{ stock_item.stock_code.stock_code }}</td>
+	<td>{{ stock_item.stock_code.stock_name }}</td>
+	<td>{{ stock_item.per }}</td>
+	<td>{{ stock_item.pbr }}</td>
+	<td>{{ stock_item.cns_per }}</td>
+	<td>{{ stock_item.cns_eps }}</td>
+</tr>
+
+{% endfor %}
+</table>
+{% endblock %}
+
