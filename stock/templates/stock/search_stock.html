@@ -29,7 +29,7 @@
 </tr>
 {% for stock_item in stock_items %}
 <tr>
-	<td>{{ stock_item.stock_code.stock_code }}</td>
+	<td><a href="http://finance.naver.com/item/main.nhn?code={{ stock_item.stock_code.stock_code }}" target="_blank">{{ stock_item.stock_code.stock_code }}</a></td>
 	<td>{{ stock_item.stock_code.stock_name }}</td>
 	<td>{{ stock_item.per }}</td>
 	<td>{{ stock_item.pbr }}</td>
