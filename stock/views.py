@@ -8,6 +8,7 @@ import urllib
 from stock.models import *
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
+from django.db.models import F
 
 STOCK_URL = 'http://finance.naver.com/item/main.nhn?code='
 # Create your views here.
@@ -277,11 +278,15 @@ def favorite_delete(request, user_id, stock_code):
 def today_stock(request):
 	objs = Stock.objects.all()
 	stock_items = []
-	_pbr = 2
-	_per_from = 10
-	_per_to = 30
+	_pbr = 1
+	_per_from = 15
+	_per_to = 25
 
-	stock_items = StockInform.objects.filter(pbr__lt=_pbr, per__gt=_per_from, per__lt=_per_to, cns_per__gt=0)
+	stock_items = StockInform.objects.filter(pbr__lt=_pbr, 
+		per__gt=_per_from, 
+		per__lt=_per_to, 
+		cns_per__gt=0,
+		).filter(per__lt=F('cns_per'))
 
 	variable = RequestContext(request,{
 		'stocks':objs,

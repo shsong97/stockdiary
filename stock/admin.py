@@ -21,8 +21,8 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 class StockInformAdmin(admin.ModelAdmin):
 	list_display = ("stock_code", "year", "per","pbr", "cns_eps", "cns_per", )
-	list_filter = ('stock_code',)
-	search_fields = ['^stock_code','^year']
+	list_filter = ('year', 'stock_code',)
+	search_fields = ['^year']
 
 admin.site.register(Stock, StockAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
