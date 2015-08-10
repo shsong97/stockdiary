@@ -10,8 +10,10 @@ from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from django.db.models import F
 
-STOCK_URL = 'http://finance.naver.com/item/main.nhn?code='
 # Create your views here.
+STOCK_URL = 'http://finance.naver.com/item/main.nhn?code='
+login_url = '/stock/login/'
+
 def home(request):
 	return HttpResponseRedirect('/stock/list')
 	
@@ -221,7 +223,7 @@ def alarm(request):
 	return HttpResponse('hello')
 
 
-@login_required
+@login_required(login_url=login_url)
 def favorite(request):
 	favorites = Favorite.objects.filter(stock_user=request.user)
 
@@ -248,7 +250,9 @@ def favorite_add(request):
 
 		user_error = stock_error = False
 		user = User.objects.filter(username=user_id)
-		if user is None:
+		if user:			
+			user_error = False
+		else:
 			user_error = True
 
 		stock = Stock.objects.filter(stock_code=stock_code)
@@ -282,10 +286,10 @@ def today_stock(request):
 	_per_from = 15
 	_per_to = 25
 
-	stock_items = StockInform.objects.filter(pbr__lt=_pbr, 
-		per__gt=_per_from, 
-		per__lt=_per_to, 
-		cns_per__gt=0,
+	stock_items = StockInform.objects.filter(
+		pbr__lt=_pbr, 
+		cns_per__gt=_per_from, 
+		cns_per__lt=_per_to,
 		)
 
 	variable = RequestContext(request,{

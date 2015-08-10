@@ -1,0 +1,9 @@
+{% extends "registration/base.html" %}
+{% block title %}Success for register{% endblock %}
+{% block head %}Success for register.{% endblock %}
+{% block content %}
+<h3>Thank you for register.</h>
+{% csrf_token %}
+<a class="btn btn-default" href="{% url 'login' %}">Login</a> or 
+<a class="btn btn-default" href="/">Go Home</a>
+{% endblock %}

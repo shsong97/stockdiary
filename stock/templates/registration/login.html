@@ -1,0 +1,30 @@
+{% extends "registration/base.html" %}
+{% block title %}User Login{% endblock %}
+{% block content %}
+<style>
+  input { 
+    width : 100%; 
+    font-size: 16px;
+    padding:7px;
+    font-family: '돋움',Dotum, Helvetica,sans-serif;
+  }
+
+</style>
+    <div class="container">
+    	<div class="jumbo-tron">
+          <form class="form-signin" method="post" action="">
+            {% csrf_token %}
+            <p>   
+            <input class="form-control" type="text" name="id_username" id="id_username" placeholder="Username" />
+            </p>
+            <p>
+            <input class="form-control" type="password" name="id_password" id="id_password" placeholder="Password" /> 
+            </p>
+            <input type="hidden" name="next" value="{{ next }}" />
+            <p>
+            <button class="btn btn-success btn-block" type="submit">로그인</button>
+            </p>
+          </form>
+    	</div>
+    </div> <!-- /container -->
+{% endblock %}

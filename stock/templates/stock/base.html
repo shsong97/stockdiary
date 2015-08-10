@@ -81,6 +81,13 @@ th {
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
+            {% if request.user.is_authenticated %}
+            <li><a href="#">{{ request.user.last_name }}{{ request.user.first_name }}님</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+            <li><a href="{% url 'register' %}">Register</a></li>
+            {% else %}
+            <li><a href="{% url 'login' %}">Settings</a></li>
+            {% endif %}
             <li><a href="#">Settings</a></li>
             <li><a href="#">Profile</a></li>
             <li><a href="#">Help</a></li>

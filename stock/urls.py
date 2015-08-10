@@ -1,5 +1,5 @@
 from django.conf.urls import include, url,patterns
-from stock import views
+from stock import views, login
 
 urlpatterns = [
     url(r'^list$', views.list, name='list'),
@@ -18,5 +18,10 @@ urlpatterns = [
     url(r'^favorite$', views.favorite, name='favorite'),
     url(r'^favorite/add$', views.favorite_add, name='favorite_add'),
     url(r'^favorite/delete/(\w+)/(\w+)$', views.favorite_delete, name='favorite_delete'),
+    # session
+    url(r'^login/$', login.login_page, name='login'),
+    url(r'^logout/$',login.logout_page, name='logout'),
+    url(r'^register/$',login.register_page,name='register'), 
+    url(r'^register/success/$',login.register_success),   
 
 ]
