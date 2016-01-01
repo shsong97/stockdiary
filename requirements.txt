@@ -5,7 +5,7 @@ billiard==3.3.0.20
 celery==3.1.18
 dj-database-url==0.3.0
 dj-static==0.0.5
-Django==1.8.1
+Django==1.8.6
 django-toolbelt==0.0.1
 gunicorn==18.0
 kombu==3.0.26
@@ -19,3 +19,6 @@ six==1.9.0
 static==1.0.2
 tweepy==3.3.0
 virtualenv==1.11.6
+whitenoise==2.0.4
+django-markdown==0.8.4
+django-grappelli==2.7.2

@@ -9,23 +9,19 @@ from stock.models import *
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from django.db.models import F
+from django.core.urlresolvers import reverse, reverse_lazy
 
-# Create your views here.
 STOCK_URL = 'http://finance.naver.com/item/main.nhn?code='
-login_url = '/stock/login/'
+login_url = '/stock/login'
 
 def home(request):
 	return HttpResponseRedirect('/stock/list')
 	
 def list(request):
-	objs = Stock.objects.all()
-	variable = RequestContext(request,{
-		'stocks':objs,
-		})
-	return render_to_response('stock/stock_list.html', variable)
+	objs = Stock.objects.order_by('stock_code')
+	return render_to_response('stock/stock_list.html',RequestContext(request,{'stocks':objs}))
 
 def stock_id(request, id):
-	objs = Stock.objects.all()
 	url = STOCK_URL+id
 	html = urllib.urlopen(url)
 	soup = BeautifulSoup(html)
@@ -97,7 +93,6 @@ def stock_id(request, id):
 
 
 	variable = RequestContext(request,{
-		'stocks':objs,
 		'stock_id':stock_id,
 		'stock_name':stock_name,
 		'stock_price':stock_price,
@@ -119,7 +114,7 @@ def stock_add(request):
 	stock.stock_name=stock_name
 	stock.stock_gubun=stock_gubun
 	stock.save()
-	return HttpResponseRedirect('/stock/list')
+	return HttpResponseRedirect(reverse('stock:list'))
 
 def stock_extract(request, classid):
 	url='http://paxnet.moneta.co.kr/stock/searchStock/searchStock.jsp?section='+classid
@@ -129,7 +124,6 @@ def stock_extract(request, classid):
 	stock_links = soup.find_all('a')
 	
 	for stock_link in stock_links:
-		# print stock_link['href']
 		try:
 			if stock_link['href'].__contains__('http://paxnet.asiae.co.kr/asiae/stockIntro/indCurrent.jsp?code='):
 				stock_code=stock_link['href'][-6:]
@@ -147,8 +141,10 @@ def stock_extract(request, classid):
 
 	return HttpResponseRedirect('/stock/list')
 
+@login_required
 def stock_delete_all(request):
-	Stock.objects.all().delete()
+	if request.user.is_staff:
+		Stock.objects.all().delete()
 	return HttpResponseRedirect('/stock/list')
 
 def stock_search(request):
@@ -156,8 +152,7 @@ def stock_search(request):
 	if search_word:
 		if len(search_word)>6:
 			stock_code = search_word[:6]
-			url = '/stock/id/' + stock_code
-			return HttpResponseRedirect(url)
+			return HttpResponseRedirect(reverse('stock:stock_id',args=[stock_code]))
 
 	return HttpResponseRedirect('/stock/list')
 
@@ -197,33 +192,40 @@ def search_stock(request):
 	return render_to_response('stock/search_stock.html', variable)
 
 
-def tweet_test(request):
-	objs = Stock.objects.all()
-	variable = RequestContext(request,{
-		'stocks':objs,
-		})
-	return render_to_response('stock/tweet.html', variable)
-
-def tweet_test_send(request):
-	objs = Stock.objects.all()
-	variable = RequestContext(request,{
-		'stocks':objs,
-		})
-	tweet_id = request.POST['tweet_id']
-	tweet_text = request.POST['tweet_text']
-	import tweet
-	try:
-		tweet.api.send_direct_message(screen_name=tweet_id,text=tweet_text)
-	except:
-		pass
-
-	return render_to_response('stock/tweet.html',variable)
+def tweet_send(request):
+	if request.POST:
+		tweet_id = request.POST['tweet_id']
+		tweet_text = request.POST['tweet_text']
+		import tweet
+		try:
+			tweet.api.send_direct_message(screen_name=tweet_id,text=tweet_text)
+		except:
+			pass
+	return render_to_response('stock/tweet.html',RequestContext(request))
 
 def alarm(request):
-	return HttpResponse('hello')
+	alarm_list = AlarmStock.objects.filter(alarm_user=request.user)
+	print alarm_list
+	return render_to_response('stock/stock_alarm.html',RequestContext(request,{'alarm_list':alarm_list}))
+
+def alarm_add(request):
+	if request.POST:
+		stock_code = request.POST['stock_code']
+		stock = Stock.objects.filter(stock_code = stock_code)
+		price = request.POST['price']
+		qty = request.POST['qty']
+		goal_price = request.POST['goal_price']
+		alarm_stock, created  = AlarmStock.objects.get_or_create(
+			alarm_user = request.user, 
+			stock_code = stock[0],
+			price = price,
+			qty = qty,
+			goal_price = goal_price,
+			)
+	return render_to_response('stock/stock_alarm.html',RequestContext(request))
 
 
-@login_required(login_url=login_url)
+@login_required()
 def favorite(request):
 	favorites = Favorite.objects.filter(stock_user=request.user)
 
@@ -236,20 +238,15 @@ def favorite(request):
 		
 	return render_to_response('stock/favorites.html',variable)
 
-
-@login_required
+@login_required()
 def favorite_add(request):
-	objs = Stock.objects.all()
-	variable = RequestContext(request,{
-		'stocks' : objs,
-		})
-
 	if request.POST:
-		user_id = request.POST['user_id']
+		# user_id = request.POST['user_id']
 		stock_code = request.POST['stock_code']
 
 		user_error = stock_error = False
-		user = User.objects.filter(username=user_id)
+		# user = User.objects.filter(username=user_id)
+		user = request.user
 		if user:			
 			user_error = False
 		else:
@@ -261,39 +258,44 @@ def favorite_add(request):
 
 
 		if user_error or stock_error:
-			return render_to_response('stock/favorite_add.html',variable)
+			return render_to_response('stock/favorite_add.html')
 
 		else:
-			favorite, created = Favorite.objects.get_or_create(stock_user=user[0], stock_code=stock[0])
+			favorite, created = Favorite.objects.get_or_create(stock_user=user, stock_code=stock[0])
+			# return HttpResponseRedirect(reverse_lazy('stock:favorite'))
 			return HttpResponseRedirect('/stock/favorite')
 	else:
-		return render_to_response('stock/favorite_add.html',variable)
+		return render_to_response('stock/favorite_add.html',RequestContext(request))
 
-@login_required
-def favorite_delete(request, user_id, stock_code):
-	user =  User.objects.filter(username=user_id)
+
+@login_required()
+def favorite_delete(request, stock_code):
+	# user =  User.objects.filter(username=user_id)
 	stock = Stock.objects.filter(stock_code=stock_code)
-	favorite = Favorite.objects.filter(stock_user=user, stock_code=stock)
+	favorite = Favorite.objects.filter(stock_user=request.user, stock_code=stock)
 	favorite.delete()
 		
 	return HttpResponseRedirect('/stock/favorite')
 
 
 def today_stock(request):
-	objs = Stock.objects.all()
 	stock_items = []
-	_pbr = 2
-	_per_from = 15
-	_per_to = 25
-
+	
+	stock = StockFilter.objects.filter(filter_name='todaystock')
+	_pbr_from = stock[0].pbr_from
+	_pbr_to = stock[0].pbr_to
+	_per_from = stock[0].cns_per_from
+	_per_to = stock[0].cns_per_to
+	
+	# print _pbr_from
 	stock_items = StockInform.objects.filter(
-		pbr__lt=_pbr, 
+		pbr__gt=_pbr_from, 
+		pbr__lt=_pbr_to, 
 		cns_per__gt=_per_from, 
 		cns_per__lt=_per_to,
 		)
 
 	variable = RequestContext(request,{
-		'stocks':objs,
 		'stock_items':stock_items,
 		})
 	return render_to_response('stock/today.html',variable)

@@ -84,13 +84,10 @@ th {
             {% if request.user.is_authenticated %}
             <li><a href="#">{{ request.user.last_name }}{{ request.user.first_name }}님</a></li>
             <li><a href="{% url 'logout' %}">Logout</a></li>
-            <li><a href="{% url 'register' %}">Register</a></li>
             {% else %}
-            <li><a href="{% url 'login' %}">Settings</a></li>
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'register' %}">Register</a></li>
             {% endif %}
-            <li><a href="#">Settings</a></li>
-            <li><a href="#">Profile</a></li>
-            <li><a href="#">Help</a></li>
           </ul>
           <form class="navbar-form navbar-right" method="POST" action="{% url 'stock_search' %}">
           {% csrf_token %}
@@ -105,16 +102,14 @@ th {
           {% if request.user.is_staff %}
           <ul class="nav nav-sidebar">
             <li><a href="{% url 'list' %}" >종목 등록</a></li>
-            <li><a href="{% url 'tweet_test' %}">트위터 등록</a></li>
+            <li><a href="{% url 'tweet_send' %}">트위터 등록</a></li>
           </ul>
           {% endif %}
           <ul class="nav nav-sidebar">
             <li><a href="{% url 'today_stock' %}">오늘의 추천주</a></li>
             <li><a href="{% url 'favorite' %}">관심종목 등록</a></li>
             <li><a href="{% url 'search_stock' %}">종목검색</a></li>
-            <li><a href="#">매매일지</a></li>
             <li><a href="{% url 'alarm' %}">종목 알림설정</a></li>
-            <li><a href="#">목표가 설정</a></li>
           </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
@@ -124,50 +119,22 @@ th {
       </div>
     </div>
 
-
-<!-- Button trigger modal -->
-
-
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script src="//code.jquery.com/jquery-1.10.2.js"></script>
 <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 <script>
 	$( document ).ready(function() {
- //    $('li').click(function(){
-	// 	var $this = $(this);
-	// 	if (!$this.hasClass('active')) {
-	// 		$this.addClass('active');
-	// 	}
-	// });
 
-	$(function() {
-    var availableTags = [{% for stock in  stocks %}
-    	"{{ stock.stock_code }} {{ stock.stock_name }}",
-    {% endfor %}
-    ];
-    $( "#search_key" ).autocomplete({
-      source: availableTags
+  	$(function() {
+      var availableTags = [{% for stock in  stocks %}
+      	"{{ stock.stock_code }} {{ stock.stock_name }}",
+      {% endfor %}
+      ];
+      $( "#search_key" ).autocomplete({
+        source: availableTags
+      });
     });
-  });
 	});
 	
 </script>   

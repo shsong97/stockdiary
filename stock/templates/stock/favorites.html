@@ -4,19 +4,15 @@
 
 <table class="table table-bordered table-hover">
 <tr>
-	<th>StockUser</th>
-	<th>UserName</th>
 	<th>StockCode</th>
 	<th>StockName</th>
 	<th>Delete</th>
 </tr>
 {% for favorite in favorites %}
 <tr>
-	<td>{{ favorite.stock_user.username }}</td>
-	<td>{{ favorite.stock_user.last_name}}{{ favorite.stock_user.first_name}}</td>
 	<td>{{ favorite.stock_code.stock_code }}</td>
 	<td>{{ favorite.stock_code.stock_name }}</td>
-	<td><a href="{% url 'favorite_delete' favorite.stock_user.username favorite.stock_code.stock_code %}">Delete</a></td>
+	<td><a class="btn btn-primary" href="{% url 'favorite_delete' favorite.stock_code.stock_code %}">Delete</a></td>
 </tr>
 
 {% endfor %}

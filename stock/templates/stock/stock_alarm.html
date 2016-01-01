@@ -1,0 +1,37 @@
+{% extends "stock/base.html" %}
+{% block contents %}
+<h4>Stock Alarm</h4>
+<form method="post" action="{% url 'alarm_add' %}">
+{% csrf_token %}
+
+<table class="table table-bordered table-hover">
+<tr>
+	<th>StockCode</th>
+	<th>StockName</th>
+	<th>Qty</th>
+	<th>Current Price</th>
+	<th>Goal Price</th>
+</tr>
+<tr>
+    {% for stock in alarm_list %}
+    <tr>
+	<td>{{ stock.stock_code.stock_code }}</td>
+	<td>{{ stock.stock_code.stock_name }}</td>
+	<td>{{ stock.qty }}</td>
+	<td>{{ stock.price }}</td>
+	<td>{{ stock.goal_price }}</td>
+	</tr>
+	{% endfor %}
+	<tr>
+	<td><input type="text" name="stock_code" id="stock_code" /></td>
+	<td><input type="text" name="stock_name" id="stock_name" /></td>
+	<td><input type="text" name="qty" id="qty" /></td>
+	<td><input type="text" name="price" id="price" /></td>
+	<td><input type="text" name="goal_price" id="goal_price" /></td>
+	</tr>
+</tr>
+</table>
+<button type="submit" class="btn btn-primary">Add</button>
+</form>
+{% endblock %}
+

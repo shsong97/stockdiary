@@ -21,8 +21,7 @@ login_url = '/stock/login/'
 
 def logout_page(request):
     logout(request)
-    return HttpResponseRedirect('/')
-
+    return HttpResponseRedirect('/stock/list')
 
 def login_page(request):
     next ='/'

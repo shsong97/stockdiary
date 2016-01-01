@@ -47,3 +47,18 @@ class StockInform(models.Model):
 
 	def __str__(self):
 		return self.stock_code.stock_code
+
+
+class StockFilter(models.Model):
+	filter_name = models.CharField(max_length=50)
+	per_from = models.FloatField()
+	per_to = models.FloatField()
+	pbr_from = models.FloatField()
+	pbr_to = models.FloatField()
+	cns_per_from = models.FloatField()
+	cns_per_to = models.FloatField()
+	cns_eps_from = models.FloatField()
+	cns_eps_to = models.FloatField()
+	
+	def __str__(self):
+		return self.filter_name	
