@@ -114,7 +114,7 @@ def stock_add(request):
 	stock.stock_name=stock_name
 	stock.stock_gubun=stock_gubun
 	stock.save()
-	return HttpResponseRedirect(reverse('stock:list'))
+	return HttpResponseRedirect('/stock/list')
 
 def stock_extract(request, classid):
 	url='http://paxnet.moneta.co.kr/stock/searchStock/searchStock.jsp?section='+classid
@@ -262,7 +262,6 @@ def favorite_add(request):
 
 		else:
 			favorite, created = Favorite.objects.get_or_create(stock_user=user, stock_code=stock[0])
-			# return HttpResponseRedirect(reverse_lazy('stock:favorite'))
 			return HttpResponseRedirect('/stock/favorite')
 	else:
 		return render_to_response('stock/favorite_add.html',RequestContext(request))
