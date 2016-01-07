@@ -159,18 +159,24 @@ def stock_search(request):
 def search_stock(request):
 	objs = Stock.objects.all()
 	stock_items = []
-	_pbr = 3
+	_pbr_from = 1
+	_pbr_to = 3
 	_per_from = 10
 	_per_to = 30
 
 	if request.POST:
-		if request.POST['pbr']=='':
-			_pbr=9999
+		if request.POST['pbr_from']=='':
+			_pbr_from=0
 		else:
-			_pbr = request.POST['pbr']
-		
+			_pbr_from = request.POST['pbr_from']
+
+		if request.POST['pbr_to']=='':
+			_pbr_to=9999
+		else:
+			_pbr_to = request.POST['pbr_to']
+			
 		if request.POST['per_from']=='':
-			_per_from=-9999
+			_per_from=0
 		else:		
 			_per_from = request.POST['per_from']
 
@@ -179,13 +185,14 @@ def search_stock(request):
 		else:		
 			_per_to = request.POST['per_to']
 
-		stock_items = StockInform.objects.filter(pbr__lt=_pbr).filter(per__gt=_per_from).filter(per__lt=_per_to)
+		stock_items = StockInform.objects.filter(pbr__gt=_pbr_from).filter(pbr__lt=_pbr_to).filter(per__gt=_per_from).filter(per__lt=_per_to)
 
 
 	variable = RequestContext(request,{
 		'stocks':objs,
 		'stock_items':stock_items,
-		'pbr' : _pbr,
+		'pbr_from' : _pbr_from,
+		'pbr_to' : _pbr_to,
 		'per_from' : _per_from,
 		'per_to' : _per_to,
 		})
@@ -205,7 +212,7 @@ def tweet_send(request):
 
 def alarm(request):
 	alarm_list = AlarmStock.objects.filter(alarm_user=request.user)
-	print alarm_list
+	# print alarm_list
 	return render_to_response('stock/stock_alarm.html',RequestContext(request,{'alarm_list':alarm_list}))
 
 def alarm_add(request):
