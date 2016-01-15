@@ -212,7 +212,6 @@ def tweet_send(request):
 
 def alarm(request):
 	alarm_list = AlarmStock.objects.filter(alarm_user=request.user)
-	# print alarm_list
 	return render_to_response('stock/stock_alarm.html',RequestContext(request,{'alarm_list':alarm_list}))
 
 def alarm_add(request):
@@ -222,20 +221,20 @@ def alarm_add(request):
 		price = request.POST['price']
 		qty = request.POST['qty']
 		goal_price = request.POST['goal_price']
-		alarm_stock, created  = AlarmStock.objects.get_or_create(
-			alarm_user = request.user, 
-			stock_code = stock[0],
-			price = price,
-			qty = qty,
-			goal_price = goal_price,
-			)
+		if stock:
+			alarm_stock, created  = AlarmStock.objects.get_or_create(
+				alarm_user = request.user, 
+				stock_code = stock[0],
+				price = price,
+				qty = qty,
+				goal_price = goal_price,
+				)
 	return render_to_response('stock/stock_alarm.html',RequestContext(request))
 
 
 @login_required()
 def favorite(request):
 	favorites = Favorite.objects.filter(stock_user=request.user)
-
 
 	objs = Stock.objects.all()
 	variable = RequestContext(request,{
@@ -248,11 +247,8 @@ def favorite(request):
 @login_required()
 def favorite_add(request):
 	if request.POST:
-		# user_id = request.POST['user_id']
 		stock_code = request.POST['stock_code']
-
 		user_error = stock_error = False
-		# user = User.objects.filter(username=user_id)
 		user = request.user
 		if user:			
 			user_error = False
@@ -262,7 +258,6 @@ def favorite_add(request):
 		stock = Stock.objects.filter(stock_code=stock_code)
 		if stock is None:
 			stock_error = True
-
 
 		if user_error or stock_error:
 			return render_to_response('stock/favorite_add.html')
@@ -276,7 +271,6 @@ def favorite_add(request):
 
 @login_required()
 def favorite_delete(request, stock_code):
-	# user =  User.objects.filter(username=user_id)
 	stock = Stock.objects.filter(stock_code=stock_code)
 	favorite = Favorite.objects.filter(stock_user=request.user, stock_code=stock)
 	favorite.delete()
@@ -305,3 +299,71 @@ def today_stock(request):
 		'stock_items':stock_items,
 		})
 	return render_to_response('stock/today.html',variable)
+
+def stock_view(stock_id):
+	url = STOCK_URL+stock_id
+	html = urllib.urlopen(url)
+	soup = BeautifulSoup(html)
+	stock_informs = soup.find_all('em')
+	pbr = per = cns_per = cns_eps = ''
+	for info in stock_informs:
+		try:
+			if info['id']=='_pbr':
+				pbr=info.text
+			if info['id']=='_per':
+				per=info.text
+			if info['id']=='_cns_per':
+				cns_per=info.text
+			if info['id']=='_cns_eps':
+				cns_eps=info.text
+
+		except KeyError:
+			pass
+
+	per = per.replace(',','')
+	pbr = pbr.replace(',','')
+	cns_eps = cns_eps.replace(',','')
+	cns_per = cns_per.replace(',','')
+
+	if per=='':
+		per=0.0
+	if pbr=='':
+		pbr=0.0
+	if cns_eps=='':
+		cns_eps=0.0
+	if cns_per=='':
+		cns_per=0.0
+
+	try:
+		year = datetime.today().year
+		stock = Stock.objects.filter(stock_code=stock_id)[0]
+		if stock:
+			stock_infos = StockInform.objects.filter(stock_code=stock, year=year)
+			if stock_infos:
+				stock_info = stock_infos[0]
+				stock_info.per = per
+				stock_info.pbr = pbr
+				stock_info.cns_per = cns_per
+				stock_info.cns_eps = cns_eps
+				stock_info.save()
+			else:
+				stock_info, created = StockInform.objects.get_or_create(stock_code=stock, 
+					year= year,
+					per = per,
+					pbr = pbr,
+					cns_per = cns_per,
+					cns_eps = cns_eps
+					)
+	except KeyError:
+		pass
+	
+def gathering(request):
+	objs = Gathering.objects.filter(gather_flag='Y')
+	for obj in objs:
+		print obj.stock_code.stock_code
+		stock_view(obj.stock_code.stock_code)
+
+	variable = RequestContext(request,{
+		'stocks':objs,
+		})
+	return render_to_response('stock/gathering.html', variable)	

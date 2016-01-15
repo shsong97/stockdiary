@@ -44,7 +44,9 @@ class StockInform(models.Model):
 	pbr = models.FloatField()
 	cns_per = models.FloatField()
 	cns_eps = models.FloatField()
-
+	invest_point = models.FloatField(default=0.0)
+	invest_remark = models.CharField(max_length=10,default='')
+	
 	def __str__(self):
 		return self.stock_code.stock_code
 
@@ -62,3 +64,13 @@ class StockFilter(models.Model):
 	
 	def __str__(self):
 		return self.filter_name	
+
+class Gathering(models.Model):
+	stock_code = models.ForeignKey(Stock)
+	gather_flag = models.CharField(max_length=1,default='Y')
+	
+	def stock_value(self):
+		return self.stock_code.stock_name
+		
+	stock_name = property(stock_value)
+	

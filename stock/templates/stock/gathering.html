@@ -1,0 +1,21 @@
+{% extends "stock/base.html" %}
+{% block contents %}
+<h4>Gathering</h4>
+
+<table class="table table-bordered table-hover">
+<tr>
+	<th>StockCode</th>
+	<th>StockName</th>
+	<th>Gubun</th>
+</tr>
+{% for stock in stocks %}
+<tr>
+	<td>{{ stock.stock_code.stock_code }}</td>
+	<td>{{ stock.stock_code.stock_name }}</td>
+	<td>{{ stock.gather_flag }}</td>
+</tr>
+
+{% endfor %}
+</table>
+{% endblock %}
+
