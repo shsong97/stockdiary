@@ -21,9 +21,9 @@ class UserProfileAdmin(admin.ModelAdmin):
 	list_display = ('user', 'tweet_id')
 
 class StockInformAdmin(admin.ModelAdmin):
-	list_display = ('stock_code', 'year', 'per','pbr', 'cns_eps', 'cns_per', )
-	list_filter = ('year', 'stock_code',)
-	search_fields = ['^year']
+	list_display = ('year', 'stock_code', 'stock_name', 'per','pbr', 'cns_eps', 'cns_per', 'invest_point', 'invest_remark', )
+	list_filter = ('year', 'stock_code', 'stock_code__stock_name',)
+	search_fields = ['^year', '^stock_code', ]
 
 # Gathering model's stock_code field - verbose name
 class GatheringModelChoiceField(forms.ModelChoiceField):
@@ -34,15 +34,15 @@ class GatheringModelChoiceField(forms.ModelChoiceField):
 class GatheringAdminForm(forms.ModelForm):
 	stock_code=GatheringModelChoiceField(queryset = Stock.objects.all())
 	class Meta:
-		model = Stock
-		fields = ['stock_code', ]
+		model = Gathering
+		fields = ['stock_code', 'gather_flag',]
 
 		
 class GatheringAdmin(admin.ModelAdmin):
 	form = GatheringAdminForm
 	list_display = ('stock_code', 'stock_name','gather_flag',)
 	list_filter = ('gather_flag', 'stock_code', )
-	search_fields = ['gather_flag','stock_code__stock_code',]
+	search_fields = ['gather_flag','stock_code__stock_code', 'stock_name', ]
 	ordering = ['stock_code']
 	
 admin.site.register(Stock, StockAdmin)

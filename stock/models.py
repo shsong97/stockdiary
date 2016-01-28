@@ -46,11 +46,17 @@ class StockInform(models.Model):
 	cns_eps = models.FloatField()
 	invest_point = models.FloatField(default=0.0)
 	invest_remark = models.CharField(max_length=10,default='')
-	
+
 	def __str__(self):
 		return self.stock_code.stock_code
 
-
+	def stock_value(self):
+		return self.stock_code.stock_name
+		
+	stock_name = property(stock_value)
+	
+	
+	
 class StockFilter(models.Model):
 	filter_name = models.CharField(max_length=50)
 	per_from = models.FloatField()
