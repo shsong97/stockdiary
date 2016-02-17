@@ -12,9 +12,10 @@ urlpatterns = [
     url(r'^today$', views.today_stock, name='today_stock'),
 
     url(r'^alarm$', views.alarm, name='alarm'),
-    url(r'^alarm_add$', views.alarm_add, name='alarm_add'),
+    url(r'^alarm/delete/(\w+)$', views.alarm_delete, name='alarm_delete'),
     url(r'^favorite$', views.favorite, name='favorite'),
     url(r'^favorite/add$', views.favorite_add, name='favorite_add'),
+    url(r'^favorite/list$', views.favorite_list, name='favorite_list'),
     url(r'^favorite/delete/(\w+)$', views.favorite_delete, name='favorite_delete'),
     
     url(r'^gather$', views.gathering, name='gathering'),

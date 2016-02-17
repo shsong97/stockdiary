@@ -66,6 +66,11 @@ th {
   color:white;
 }
 </style>
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
 </head>
 <body>
 	<nav class="navbar navbar-fixed-top nav-bar-color">
@@ -108,6 +113,7 @@ th {
           <ul class="nav nav-sidebar">
             <li><a href="{% url 'today_stock' %}">오늘의 추천주</a></li>
             <li><a href="{% url 'favorite' %}">관심종목 등록</a></li>
+            <li><a href="{% url 'favorite_list' %}">관심종목 보기</a></li>
             <li><a href="{% url 'search_stock' %}">종목검색</a></li>
             <li><a href="{% url 'alarm' %}">종목 알림설정</a></li>
           </ul>
@@ -119,10 +125,6 @@ th {
       </div>
     </div>
 
-<script src="//code.jquery.com/jquery-1.10.2.js"></script>
-<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 <script>
 	$( document ).ready(function() {
 

@@ -152,7 +152,7 @@ def stock_search(request):
 	if search_word:
 		if len(search_word)>6:
 			stock_code = search_word[:6]
-			return HttpResponseRedirect(reverse('stock:stock_id',args=[stock_code]))
+			return HttpResponseRedirect('/stock/id/'+stock_code)
 
 	return HttpResponseRedirect('/stock/list')
 
@@ -185,7 +185,11 @@ def search_stock(request):
 		else:		
 			_per_to = request.POST['per_to']
 
-		stock_items = StockInform.objects.filter(pbr__gt=_pbr_from).filter(pbr__lt=_pbr_to).filter(per__gt=_per_from).filter(per__lt=_per_to)
+		stock_items = StockInform.objects.filter(pbr__gt=_pbr_from,
+					year = datetime.today().year,
+					pbr__lt=_pbr_to,
+					per__gt=_per_from,
+					per__lt=_per_to)
 
 
 	variable = RequestContext(request,{
@@ -210,28 +214,46 @@ def tweet_send(request):
 			pass
 	return render_to_response('stock/tweet.html',RequestContext(request))
 
+
 def alarm(request):
+	objs = Stock.objects.all()
 	alarm_list = AlarmStock.objects.filter(alarm_user=request.user)
-	return render_to_response('stock/stock_alarm.html',RequestContext(request,{'alarm_list':alarm_list}))
-
-def alarm_add(request):
 	if request.POST:
-		stock_code = request.POST['stock_code']
-		stock = Stock.objects.filter(stock_code = stock_code)
-		price = request.POST['price']
-		qty = request.POST['qty']
-		goal_price = request.POST['goal_price']
-		if stock:
-			alarm_stock, created  = AlarmStock.objects.get_or_create(
-				alarm_user = request.user, 
-				stock_code = stock[0],
-				price = price,
-				qty = qty,
-				goal_price = goal_price,
-				)
-	return render_to_response('stock/stock_alarm.html',RequestContext(request))
+		stock_code=None
+		search_word=request.POST['stock_name']
+		if search_word:
+			if len(search_word)>6:
+				stock_code = search_word[:6]
+		
+		if stock_code:
+			stock = Stock.objects.filter(stock_code = stock_code)
+			price = request.POST['price']
+			if price=='':
+				price=0
+			qty = request.POST['qty']
+			if qty=='':
+				qty=1
+			goal_price = request.POST['goal_price']
+			if goal_price=='':
+				goal_price=0
+			if stock:
+				alarm_stock, created  = AlarmStock.objects.get_or_create(
+					alarm_user = request.user, 
+					stock_code = stock[0],
+					price = price,
+					qty = qty,
+					goal_price = goal_price,
+					)
+	return render_to_response('stock/stock_alarm.html',RequestContext(request,{'alarm_list':alarm_list,'stocks':objs,}))
 
-
+@login_required()
+def alarm_delete(request, stock_code):
+	stock = Stock.objects.filter(stock_code=stock_code)
+	alarm_stock = AlarmStock.objects.filter(alarm_user=request.user, stock_code=stock)
+	alarm_stock.delete()
+		
+	return HttpResponseRedirect('/stock/alarm')
+	
 @login_required()
 def favorite(request):
 	favorites = Favorite.objects.filter(stock_user=request.user)
@@ -245,9 +267,23 @@ def favorite(request):
 	return render_to_response('stock/favorites.html',variable)
 
 @login_required()
+def favorite_list(request):
+	favorites = Favorite.objects.filter(stock_user=request.user)
+	variable = RequestContext(request,{
+		'favorites' : favorites,
+		})
+		
+	return render_to_response('stock/favorite_list.html',variable)
+	
+@login_required()
 def favorite_add(request):
+	objs = Stock.objects.all()
 	if request.POST:
-		stock_code = request.POST['stock_code']
+		search_word=request.POST['stock_code']
+		if search_word:
+			if len(search_word)>6:
+				stock_code = search_word[:6]
+			
 		user_error = stock_error = False
 		user = request.user
 		if user:			
@@ -266,7 +302,8 @@ def favorite_add(request):
 			favorite, created = Favorite.objects.get_or_create(stock_user=user, stock_code=stock[0])
 			return HttpResponseRedirect('/stock/favorite')
 	else:
-		return render_to_response('stock/favorite_add.html',RequestContext(request))
+		return render_to_response('stock/favorite_add.html',
+			RequestContext(request,{'stocks' : objs}))
 
 
 @login_required()
@@ -286,13 +323,14 @@ def today_stock(request):
 	_pbr_to = stock[0].pbr_to
 	_per_from = stock[0].cns_per_from
 	_per_to = stock[0].cns_per_to
-	
+	current_year= datetime.today().year
 	# print _pbr_from
 	stock_items = StockInform.objects.filter(
 		pbr__gt=_pbr_from, 
 		pbr__lt=_pbr_to, 
 		cns_per__gt=_per_from, 
 		cns_per__lt=_per_to,
+		year=current_year,
 		)
 
 	variable = RequestContext(request,{

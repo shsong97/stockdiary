@@ -1,0 +1,18 @@
+{% extends "stock/base.html" %}
+{% block contents %}
+<h4>Favorite List</h4>
+
+
+{% for favorite in favorites %}
+<div>
+    <div>
+    <a href="{% url 'stock_id' favorite.stock_code.stock_code %}">{{ favorite.stock_code.stock_code }}</a>-{{ favorite.stock_code.stock_name }}
+    </div>
+    <div>
+    <img src="http://imgfinance.naver.net/chart/item/day7/{{ favorite.stock_code.stock_code }}.png">
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+

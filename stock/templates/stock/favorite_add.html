@@ -9,10 +9,26 @@
 	<th>StockCode</th>
 </tr>
 <tr>
-	<td><input type="text" name="stock_code" id="stock_code" /></td>
+	<td><input type="text" name="stock_code" id="stock_code" name="stock_code" autocomplete="off" /></td>
 </tr>
 </table>
 <button type="submit" class="btn btn-primary">Add</button>
 </form>
+
+<script>
+	$( document ).ready(function() {
+
+  	$(function() {
+      var stocks = [{% for stock in  stocks %}
+      	"{{ stock.stock_code }} {{ stock.stock_name }}",
+      {% endfor %}
+      ];
+      $( "#stock_code" ).autocomplete({
+        source: stocks
+      });
+    });
+	});
+	
+</script>   
 {% endblock %}
 

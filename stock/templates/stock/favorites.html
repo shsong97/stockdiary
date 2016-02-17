@@ -10,7 +10,7 @@
 </tr>
 {% for favorite in favorites %}
 <tr>
-	<td>{{ favorite.stock_code.stock_code }}</td>
+	<td><a href="{% url 'stock_id' favorite.stock_code.stock_code %}">{{ favorite.stock_code.stock_code }}</a></td>
 	<td>{{ favorite.stock_code.stock_name }}</td>
 	<td><a class="btn btn-primary" href="{% url 'favorite_delete' favorite.stock_code.stock_code %}">Delete</a></td>
 </tr>

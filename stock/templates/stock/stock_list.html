@@ -4,6 +4,7 @@
 <div>
 <form method="POST" action="{% url 'stock_add' %}" class="form-inline">
 {% csrf_token %}
+{% if request.user.is_staff %}
 <h3>종목추가</h3>
 <label class="sr-only" for="stock_code">종목코드 : </label><input class="form-control" type="text" name="stock_code" id="stock_code" placeholder="종목코드"  />
 <label class="sr-only" for="stock_name">종목명 : </label><input class="form-control" type="text" name="stock_name" id="stock_name" placeholder="종목명" />
@@ -11,16 +12,19 @@
 <button class="form-control btn btn-success" >추가</button>
 </form>
 </div>
+{% endif %}
 <br />
 <div>
 <h3>참고사이트</h3>
 <a href="http://paxnet.moneta.co.kr/stock/searchStock/searchStock.jsp?section=0" class="btn btn-primary">코스피</a>
 <a href="http://paxnet.moneta.co.kr/stock/searchStock/searchStock.jsp?section=1" class="btn btn-primary">코스닥</a>
 <br />
+{% if request.user.is_staff %}
 <h3>종목코드 추출</h3>
 <a href="{% url 'stock_extract' 0 %}" class="btn btn-primary btn-danger">코스피 추출</a>
 <a href="{% url 'stock_extract' 1 %}" class="btn btn-primary btn-primary">코스닥 추출</a>
 <a href="{% url 'stock_delete_all' %}" class="btn btn-primary btn-warning">전체 삭제</a>
+{% endif %}
 <br />
 <p></p>	
 <table class="table table-bordered table-hover">
