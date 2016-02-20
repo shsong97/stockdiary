@@ -18,6 +18,9 @@ class Favorite(models.Model):
 	def __str__(self):
 		return self.stock_user.username
 
+	@property
+	def stock_name(self):
+		return self.stock_code.stock_name
 
 class AlarmStock(models.Model):
 	alarm_user = models.ForeignKey(User,related_name='alarm_user')
@@ -28,6 +31,10 @@ class AlarmStock(models.Model):
 
 	def __str__(self):
 		return self.alarm_user.username
+
+	@property
+	def stock_name(self):
+		return self.stock_code.stock_name
 
 
 class UserProfile(models.Model):
@@ -50,12 +57,10 @@ class StockInform(models.Model):
 	def __str__(self):
 		return self.stock_code.stock_code
 
-	def stock_value(self):
+	@property
+	def stock_name(self):
 		return self.stock_code.stock_name
-		
-	stock_name = property(stock_value)
-	
-	
+
 	
 class StockFilter(models.Model):
 	filter_name = models.CharField(max_length=50)

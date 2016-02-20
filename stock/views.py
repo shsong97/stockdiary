@@ -19,8 +19,8 @@ def home(request):
 	
 def list(request):
 	objs = Stock.objects.order_by('stock_code')
-	return render_to_response('stock/stock_list.html',RequestContext(request,{'stocks':objs}))
-
+	return render(request,'stock/stock_list.html',{'stocks':objs,})
+	
 def stock_id(request, id):
 	url = STOCK_URL+id
 	html = urllib.urlopen(url)
@@ -92,7 +92,7 @@ def stock_id(request, id):
 		pass
 
 
-	variable = RequestContext(request,{
+	variable = {
 		'stock_id':stock_id,
 		'stock_name':stock_name,
 		'stock_price':stock_price,
@@ -103,8 +103,8 @@ def stock_id(request, id):
 		'per' : per,
 		'cns_per' : cns_per,
 		'cns_eps' : cns_eps,
-		})
-	return render_to_response('stock/stock_id.html', variable)
+		}
+	return render(request,'stock/stock_id.html', variable)
 
 def stock_add(request):
 	stock_code = request.POST['stock_code']
@@ -192,15 +192,15 @@ def search_stock(request):
 					per__lt=_per_to)
 
 
-	variable = RequestContext(request,{
+	variable = {
 		'stocks':objs,
 		'stock_items':stock_items,
 		'pbr_from' : _pbr_from,
 		'pbr_to' : _pbr_to,
 		'per_from' : _per_from,
 		'per_to' : _per_to,
-		})
-	return render_to_response('stock/search_stock.html', variable)
+		}
+	return render(request,'stock/search_stock.html', variable)
 
 
 def tweet_send(request):
@@ -212,7 +212,7 @@ def tweet_send(request):
 			tweet.api.send_direct_message(screen_name=tweet_id,text=tweet_text)
 		except:
 			pass
-	return render_to_response('stock/tweet.html',RequestContext(request))
+	return render(request,'stock/tweet.html')
 
 
 def alarm(request):
@@ -244,7 +244,7 @@ def alarm(request):
 					qty = qty,
 					goal_price = goal_price,
 					)
-	return render_to_response('stock/stock_alarm.html',RequestContext(request,{'alarm_list':alarm_list,'stocks':objs,}))
+	return render(request,'stock/stock_alarm.html',{'alarm_list':alarm_list,'stocks':objs,})
 
 @login_required()
 def alarm_delete(request, stock_code):
@@ -259,21 +259,21 @@ def favorite(request):
 	favorites = Favorite.objects.filter(stock_user=request.user)
 
 	objs = Stock.objects.all()
-	variable = RequestContext(request,{
+	variable = {
 		'stocks' : objs,
 		'favorites' : favorites,
-		})
+		}
 		
-	return render_to_response('stock/favorites.html',variable)
+	return render(request,'stock/favorites.html',variable)
 
 @login_required()
 def favorite_list(request):
 	favorites = Favorite.objects.filter(stock_user=request.user)
-	variable = RequestContext(request,{
+	variable = {
 		'favorites' : favorites,
-		})
+		}
 		
-	return render_to_response('stock/favorite_list.html',variable)
+	return render(request,'stock/favorite_list.html',variable)
 	
 @login_required()
 def favorite_add(request):
@@ -302,8 +302,7 @@ def favorite_add(request):
 			favorite, created = Favorite.objects.get_or_create(stock_user=user, stock_code=stock[0])
 			return HttpResponseRedirect('/stock/favorite')
 	else:
-		return render_to_response('stock/favorite_add.html',
-			RequestContext(request,{'stocks' : objs}))
+		return render(request,'stock/favorite_add.html',{'stocks' : objs})
 
 
 @login_required()
@@ -319,24 +318,37 @@ def today_stock(request):
 	stock_items = []
 	
 	stock = StockFilter.objects.filter(filter_name='todaystock')
-	_pbr_from = stock[0].pbr_from
-	_pbr_to = stock[0].pbr_to
+
 	_per_from = stock[0].cns_per_from
 	_per_to = stock[0].cns_per_to
+	_pbr_from = stock[0].pbr_from
+	_pbr_to = stock[0].pbr_to
+
+	_cns_per_from = stock[0].cns_per_from
+	_cns_per_to = stock[0].cns_per_to
+	_cns_eps_from = stock[0].cns_eps_from
+	_cns_eps_to = stock[0].cns_eps_to
+	
 	current_year= datetime.today().year
 	# print _pbr_from
 	stock_items = StockInform.objects.filter(
+		year=current_year,
+
+		per__gt=_per_from, 
+		per__lt=_per_to,
 		pbr__gt=_pbr_from, 
 		pbr__lt=_pbr_to, 
-		cns_per__gt=_per_from, 
-		cns_per__lt=_per_to,
-		year=current_year,
-		)
 
-	variable = RequestContext(request,{
+		cns_per__gt=_cns_per_from, 
+		cns_per__lt=_cns_per_to,
+		cns_eps__gt=_cns_eps_from, 
+		cns_eps__lt=_cns_eps_to,
+		).order_by('per')
+
+	variable = {
 		'stock_items':stock_items,
-		})
-	return render_to_response('stock/today.html',variable)
+		}
+	return render(request,'stock/today.html',variable)
 
 def stock_view(stock_id):
 	url = STOCK_URL+stock_id
@@ -401,7 +413,40 @@ def gathering(request):
 		print obj.stock_code.stock_code
 		stock_view(obj.stock_code.stock_code)
 
-	variable = RequestContext(request,{
+	variable = {
 		'stocks':objs,
-		})
-	return render_to_response('stock/gathering.html', variable)	
+		}
+	return render(request,'stock/gathering.html', variable)	
+
+def collect_id(request, stockid):
+	objs = Stock.objects.filter(stock_code__istartswith=stockid).order_by('stock_code')
+	print datetime.today()
+	for obj in objs:
+		print obj.stock_code
+		stock_view(obj.stock_code)
+	print datetime.today()
+	variable = {
+		'stocks':objs,
+		}
+	return render(request,'stock/collect.html', variable)
+
+def collect(request):
+	variable = {}
+	if request.GET:
+		if request.GET.get('start_key'):
+			start_key = request.GET['start_key']
+
+			objs = Stock.objects.filter(stock_code__istartswith=start_key).order_by('stock_code')
+			from_time = datetime.today()
+			print from_time
+			for obj in objs:
+				print obj.stock_code
+				stock_view(obj.stock_code)
+			to_time = datetime.today()
+			print to_time
+			print to_time-from_time
+			variable = {
+				'stocks':objs,
+				}
+
+	return render(request,'stock/collect.html', variable)

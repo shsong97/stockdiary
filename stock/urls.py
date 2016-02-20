@@ -19,6 +19,8 @@ urlpatterns = [
     url(r'^favorite/delete/(\w+)$', views.favorite_delete, name='favorite_delete'),
     
     url(r'^gather$', views.gathering, name='gathering'),
+    url(r'^collect$', views.collect, name='collect'),
+    url(r'^collect/(\d+)$', views.collect_id, name='collect_id'),
     # session
     url(r'^login/$', login.login_page, name='login'),
     url(r'^logout/$',login.logout_page, name='logout'),

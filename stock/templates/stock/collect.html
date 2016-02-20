@@ -1,0 +1,22 @@
+{% extends "stock/base.html" %}
+{% block contents %}
+<h4>Collect stock</h4>
+<form>
+    <input type="text" id="start_key" name="start_key" placeholder="start with stock code">
+    <button type="submit">Submit</button>
+</form>
+<table class="table table-bordered table-hover">
+<tr>
+	<th>StockCode</th>
+	<th>StockName</th>
+</tr>
+{% for stock in stocks %}
+<tr>
+	<td>{{ stock.stock_code }}</td>
+	<td>{{ stock.stock_name }}</td>
+</tr>
+
+{% endfor %}
+</table>
+{% endblock %}
+

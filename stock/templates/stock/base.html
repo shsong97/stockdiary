@@ -73,10 +73,10 @@ th {
 
 </head>
 <body>
-	<nav class="navbar navbar-fixed-top nav-bar-color">
+	<nav class="navbar navbar-default navbar-fixed-top nav-bar-color">
       <div class="container-fluid">
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar_right" aria-expanded="false" aria-controls="navbar">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -84,7 +84,7 @@ th {
           </button>
           <a class="navbar-brand" href="#">Stock Diary</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
+        <div id="navbar_right" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
             {% if request.user.is_authenticated %}
             <li><a href="#">{{ request.user.last_name }}{{ request.user.first_name }}님</a></li>
@@ -107,6 +107,7 @@ th {
           {% if request.user.is_staff %}
           <ul class="nav nav-sidebar">
             <li><a href="{% url 'list' %}" >종목 등록</a></li>
+            <li><a href="{% url 'collect' %}" >종목수집</a></li>
             <li><a href="{% url 'tweet_send' %}">트위터 등록</a></li>
           </ul>
           {% endif %}
@@ -126,13 +127,13 @@ th {
     </div>
 
 <script>
+    var availableTags = [{% for stock in  stocks %}
+    	"{{ stock.stock_code }} {{ stock.stock_name }}",
+    {% endfor %}
+    ];
 	$( document ).ready(function() {
 
   	$(function() {
-      var availableTags = [{% for stock in  stocks %}
-      	"{{ stock.stock_code }} {{ stock.stock_name }}",
-      {% endfor %}
-      ];
       $( "#search_key" ).autocomplete({
         source: availableTags
       });
