@@ -290,8 +290,8 @@ def today_stock(request):
 	
 	stock = StockFilter.objects.filter(filter_name='todaystock')
 
-	_per_from = stock[0].cns_per_from
-	_per_to = stock[0].cns_per_to
+	_per_from = stock[0].per_from
+	_per_to = stock[0].per_to
 	_pbr_from = stock[0].pbr_from
 	_pbr_to = stock[0].pbr_to
 
