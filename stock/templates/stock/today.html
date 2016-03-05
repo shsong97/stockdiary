@@ -10,6 +10,7 @@
 	<th>PBR</th>
 	<th>추정 PER</th>
 	<th>추정 EPS</th>
+	<th>매수</th>
 </tr>
 {% for stock_item in stock_items %}
 <tr>
@@ -19,6 +20,7 @@
 	<td>{{ stock_item.pbr }}</td>
 	<td>{{ stock_item.cns_per }}</td>
 	<td>{{ stock_item.cns_eps }}</td>
+	<td>{{ stock_item.invest_point }}</td>
 </tr>
 
 {% endfor %}

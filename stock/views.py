@@ -21,12 +21,11 @@ def list(request):
 	objs = Stock.objects.order_by('stock_code')
 	return render(request,'stock/stock_list.html',{'stocks':objs,})
 	
-def stock_id(request, id):
-	url = STOCK_URL+id
+def stock_id(request, stock_id_code):
+	url = STOCK_URL+stock_id_code
 	html = urllib.urlopen(url)
 	soup = BeautifulSoup(html)
 	
-	stock_id=id
 	blind = soup.find('dl',{'class':'blind'})
 	
 	stock_dd= blind.find_all('dd')
@@ -67,33 +66,9 @@ def stock_id(request, id):
 		cns_eps=0.0
 	if cns_per=='':
 		cns_per=0.0
-
-	try:
-		year = datetime.today().year
-		stock = Stock.objects.filter(stock_code=stock_id)[0]
-		if stock:
-			stock_infos = StockInform.objects.filter(stock_code=stock, year=year)
-			if stock_infos:
-				stock_info = stock_infos[0]
-				stock_info.per = per
-				stock_info.pbr = pbr
-				stock_info.cns_per = cns_per
-				stock_info.cns_eps = cns_eps
-				stock_info.save()
-			else:
-				stock_info, created = StockInform.objects.get_or_create(stock_code=stock, 
-					year= year,
-					per = per,
-					pbr = pbr,
-					cns_per = cns_per,
-					cns_eps = cns_eps
-					)
-	except KeyError:
-		pass
-
-
+ 
 	variable = {
-		'stock_id':stock_id,
+		'stock_id':stock_id_code,
 		'stock_name':stock_name,
 		'stock_price':stock_price,
 		'stock_content':stock_content.text,
@@ -189,18 +164,19 @@ def search_stock(request):
 					year = datetime.today().year,
 					pbr__lt=_pbr_to,
 					per__gt=_per_from,
-					per__lt=_per_to)
+					per__lt=_per_to,
+					cns_per__gt=0,
+					invest_point__gt=3,
+					)
 
-
-	variable = {
+	return render(request,'stock/search_stock.html', {
 		'stocks':objs,
 		'stock_items':stock_items,
 		'pbr_from' : _pbr_from,
 		'pbr_to' : _pbr_to,
 		'per_from' : _per_from,
 		'per_to' : _per_to,
-		}
-	return render(request,'stock/search_stock.html', variable)
+		})
 
 
 def tweet_send(request):
@@ -257,23 +233,18 @@ def alarm_delete(request, stock_code):
 @login_required()
 def favorite(request):
 	favorites = Favorite.objects.filter(stock_user=request.user)
-
 	objs = Stock.objects.all()
-	variable = {
+	return render(request,'stock/favorites.html',{
 		'stocks' : objs,
 		'favorites' : favorites,
-		}
-		
-	return render(request,'stock/favorites.html',variable)
+		})
 
 @login_required()
 def favorite_list(request):
 	favorites = Favorite.objects.filter(stock_user=request.user)
-	variable = {
+	return render(request,'stock/favorite_list.html',{
 		'favorites' : favorites,
-		}
-		
-	return render(request,'stock/favorite_list.html',variable)
+		})
 	
 @login_required()
 def favorite_add(request):
@@ -296,7 +267,7 @@ def favorite_add(request):
 			stock_error = True
 
 		if user_error or stock_error:
-			return render_to_response('stock/favorite_add.html')
+			return render(request,'stock/favorite_add.html')
 
 		else:
 			favorite, created = Favorite.objects.get_or_create(stock_user=user, stock_code=stock[0])
@@ -328,7 +299,7 @@ def today_stock(request):
 	_cns_per_to = stock[0].cns_per_to
 	_cns_eps_from = stock[0].cns_eps_from
 	_cns_eps_to = stock[0].cns_eps_to
-	
+	_invest_point_to = stock[0].invest_point_to
 	current_year= datetime.today().year
 	# print _pbr_from
 	stock_items = StockInform.objects.filter(
@@ -343,17 +314,20 @@ def today_stock(request):
 		cns_per__lt=_cns_per_to,
 		cns_eps__gt=_cns_eps_from, 
 		cns_eps__lt=_cns_eps_to,
+		invest_point__gt=_invest_point_to,
 		).order_by('per')
 
-	variable = {
+	return render(request,'stock/today.html',{
 		'stock_items':stock_items,
-		}
-	return render(request,'stock/today.html',variable)
+		})
 
-def stock_view(stock_id):
-	url = STOCK_URL+stock_id
+def stock_url(stock_id_code):
+	url = STOCK_URL+stock_id_code
 	html = urllib.urlopen(url)
 	soup = BeautifulSoup(html)
+	stock_view(stock_id_code, soup)
+
+def stock_view(stock_id_code, soup):
 	stock_informs = soup.find_all('em')
 	pbr = per = cns_per = cns_eps = ''
 	for info in stock_informs:
@@ -375,6 +349,17 @@ def stock_view(stock_id):
 	cns_eps = cns_eps.replace(',','')
 	cns_per = cns_per.replace(',','')
 
+	invest_point = 0
+	invest_remark = ''
+	
+	invest_info = soup.find_all('table',attrs={'class':'rwidth'})
+	for invest_item in invest_info:
+		span_info = invest_item.find('span',attrs={'class':'f_up'})
+		if span_info:
+			invest_point = float(str(span_info.find('em').text))
+			invest_remark = span_info.text
+		# print span_info
+
 	if per=='':
 		per=0.0
 	if pbr=='':
@@ -386,7 +371,7 @@ def stock_view(stock_id):
 
 	try:
 		year = datetime.today().year
-		stock = Stock.objects.filter(stock_code=stock_id)[0]
+		stock = Stock.objects.filter(stock_code=stock_id_code)[0]
 		if stock:
 			stock_infos = StockInform.objects.filter(stock_code=stock, year=year)
 			if stock_infos:
@@ -395,6 +380,8 @@ def stock_view(stock_id):
 				stock_info.pbr = pbr
 				stock_info.cns_per = cns_per
 				stock_info.cns_eps = cns_eps
+				stock_info.invest_point = invest_point
+				stock_info.invest_remark = invest_remark
 				stock_info.save()
 			else:
 				stock_info, created = StockInform.objects.get_or_create(stock_code=stock, 
@@ -402,7 +389,9 @@ def stock_view(stock_id):
 					per = per,
 					pbr = pbr,
 					cns_per = cns_per,
-					cns_eps = cns_eps
+					cns_eps = cns_eps,
+					invest_point = invest_point,
+					invest_remark = invest_remark,
 					)
 	except KeyError:
 		pass
@@ -411,42 +400,38 @@ def gathering(request):
 	objs = Gathering.objects.filter(gather_flag='Y')
 	for obj in objs:
 		print obj.stock_code.stock_code
-		stock_view(obj.stock_code.stock_code)
+		stock_url(obj.stock_code.stock_code)
 
-	variable = {
+	return render(request,'stock/gathering.html', {
 		'stocks':objs,
-		}
-	return render(request,'stock/gathering.html', variable)	
+		})	
 
 def collect_id(request, stockid):
 	objs = Stock.objects.filter(stock_code__istartswith=stockid).order_by('stock_code')
-	print datetime.today()
 	for obj in objs:
-		print obj.stock_code
-		stock_view(obj.stock_code)
-	print datetime.today()
-	variable = {
+		stock_url(obj.stock_code)
+	
+	return render(request,'stock/collect.html', {
 		'stocks':objs,
-		}
-	return render(request,'stock/collect.html', variable)
+		})
 
 def collect(request):
 	variable = {}
+	objs=[]
 	if request.GET:
 		if request.GET.get('start_key'):
 			start_key = request.GET['start_key']
 
 			objs = Stock.objects.filter(stock_code__istartswith=start_key).order_by('stock_code')
 			from_time = datetime.today()
-			print from_time
 			for obj in objs:
 				print obj.stock_code
-				stock_view(obj.stock_code)
+				stock_id = obj.stock_code
+				stock_url(stock_id)
 			to_time = datetime.today()
-			print to_time
+			print "End time : "
 			print to_time-from_time
-			variable = {
+			
+	return render(request,'stock/collect.html', {
 				'stocks':objs,
-				}
-
-	return render(request,'stock/collect.html', variable)
+				})

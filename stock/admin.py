@@ -23,7 +23,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 class StockInformAdmin(admin.ModelAdmin):
 	list_display = ('year', 'stock_code', 'stock_name', 'per','pbr', 'cns_eps', 'cns_per', 'invest_point', 'invest_remark', )
 	list_filter = ('year',)
-	search_fields = ['^year', '^stock_code', ]
+	search_fields = ['^year', '^stock_code__stock_code', ]
 	ordering = ['year', 'stock_code', 'per','pbr', 'cns_eps', 'cns_per', 'invest_point', 'invest_remark',]
 
 # Gathering model's stock_code field - verbose name

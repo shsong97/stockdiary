@@ -72,6 +72,7 @@ class StockFilter(models.Model):
 	cns_per_to = models.FloatField()
 	cns_eps_from = models.FloatField()
 	cns_eps_to = models.FloatField()
+	invest_point_to = models.FloatField()
 	
 	def __str__(self):
 		return self.filter_name	
