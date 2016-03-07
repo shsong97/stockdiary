@@ -12,7 +12,8 @@ from django.db.models import F
 from django.core.urlresolvers import reverse, reverse_lazy
 
 STOCK_URL = 'http://finance.naver.com/item/main.nhn?code='
-login_url = '/stock/login'
+PAX_URL = 'http://paxnet.moneta.co.kr/stock/searchStock/searchStock.jsp?section='
+PAX_URL2 = 'http://paxnet.asiae.co.kr/asiae/stockIntro/indCurrent.jsp?code='
 
 def home(request):
 	return HttpResponseRedirect('/stock/list')
@@ -92,7 +93,7 @@ def stock_add(request):
 	return HttpResponseRedirect('/stock/list')
 
 def stock_extract(request, classid):
-	url='http://paxnet.moneta.co.kr/stock/searchStock/searchStock.jsp?section='+classid
+	url=PAX_URL+classid
 	html = urllib.urlopen(url)
 	soup = BeautifulSoup(html)
 	
@@ -100,7 +101,7 @@ def stock_extract(request, classid):
 	
 	for stock_link in stock_links:
 		try:
-			if stock_link['href'].__contains__('http://paxnet.asiae.co.kr/asiae/stockIntro/indCurrent.jsp?code='):
+			if stock_link['href'].__contains__(PAX_URL2):
 				stock_code=stock_link['href'][-6:]
 				stock_name=stock_link.text
 				stock, created = Stock.objects.get_or_create(stock_code=stock_code)
@@ -138,6 +139,9 @@ def search_stock(request):
 	_pbr_to = 3
 	_per_from = 10
 	_per_to = 30
+	_cns_per_from = 10
+	_cns_per_to = 30	
+	_invest_point_to = 4.0
 
 	if request.POST:
 		if request.POST['pbr_from']=='':
@@ -160,13 +164,29 @@ def search_stock(request):
 		else:		
 			_per_to = request.POST['per_to']
 
+		if request.POST['cns_per_from']=='':
+			_cns_per_from=0
+		else:		
+			_cns_per_from = request.POST['cns_per_from']
+
+		if request.POST['cns_per_to']=='':
+			_cns_per_to=9999
+		else:		
+			_cns_per_to = request.POST['cns_per_to']
+
+		if request.POST['invest_point_to']=='':
+			_invest_point_to=0.0
+		else:		
+			_invest_point_to = request.POST['invest_point_to']
+
 		stock_items = StockInform.objects.filter(pbr__gt=_pbr_from,
 					year = datetime.today().year,
 					pbr__lt=_pbr_to,
 					per__gt=_per_from,
 					per__lt=_per_to,
-					cns_per__gt=0,
-					invest_point__gt=3,
+					cns_per__gt=_cns_per_from,
+					cns_per__lt=_cns_per_to,
+					invest_point__gt=_invest_point_to,
 					)
 
 	return render(request,'stock/search_stock.html', {
@@ -176,6 +196,9 @@ def search_stock(request):
 		'pbr_to' : _pbr_to,
 		'per_from' : _per_from,
 		'per_to' : _per_to,
+		'cns_per_from' : _cns_per_from,
+		'cns_per_to' : _cns_per_to,	
+		'invest_point_to' : _invest_point_to,
 		})
 
 
@@ -203,20 +226,20 @@ def alarm(request):
 		
 		if stock_code:
 			stock = Stock.objects.filter(stock_code = stock_code)
-			price = request.POST['price']
-			if price=='':
-				price=0
+			
 			qty = request.POST['qty']
 			if qty=='':
 				qty=1
+
 			goal_price = request.POST['goal_price']
 			if goal_price=='':
 				goal_price=0
+
 			if stock:
 				alarm_stock, created  = AlarmStock.objects.get_or_create(
 					alarm_user = request.user, 
 					stock_code = stock[0],
-					price = price,
+					price = 0,
 					qty = qty,
 					goal_price = goal_price,
 					)
@@ -229,7 +252,48 @@ def alarm_delete(request, stock_code):
 	alarm_stock.delete()
 		
 	return HttpResponseRedirect('/stock/alarm')
-	
+
+@login_required()
+def alarm_update(request, stock_code):
+	stock = Stock.objects.filter(stock_code=stock_code)
+	alarm_stock = AlarmStock.objects.filter(alarm_user=request.user, stock_code=stock)
+	if alarm_stock:
+		alarm1 = alarm_stock[0]
+		qty = 0 
+		goal = 0
+		if request.GET.get('qty_code'):
+			qty = request.GET['qty_code']
+		if request.GET.get('goal_code'):
+			goal = request.GET['goal_code']
+			goal = goal.replace(',','')
+		
+		alarm1.qty = qty
+		alarm1.goal_price = goal
+		alarm1.save()
+		
+	return HttpResponseRedirect('/stock/alarm')
+
+@login_required()
+def collect_alarm(request):
+	objs = AlarmStock.objects.filter(alarm_user=request.user)
+	for obj in objs:
+		stock_id_code = obj.stock_code.stock_code
+
+		url = STOCK_URL+stock_id_code
+		html = urllib.urlopen(url)
+		soup = BeautifulSoup(html)
+		
+		blind = soup.find('dl',{'class':'blind'})
+		
+		stock_dd= blind.find_all('dd')
+		stock_price=stock_dd[3].text.split()[1]
+		stock_price=stock_price.replace(',','')
+		
+		obj.price = stock_price
+		obj.save()
+
+	return HttpResponseRedirect('/stock/alarm')
+
 @login_required()
 def favorite(request):
 	favorites = Favorite.objects.filter(stock_user=request.user)

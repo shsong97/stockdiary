@@ -1,40 +1,45 @@
 {% extends "stock/base.html" %}
 {% block contents %}
-<h4>Stock Alarm</h4>
+{% load humanize %}
+<h4>종목알림</h4>
 <form method="post" action="{% url 'alarm' %}">
 {% csrf_token %}
 
 <table class="table table-bordered table-hover">
 <tr>
-	<th>StockCode</th>
-	<th>StockName</th>
-	<th>Qty</th>
-	<th>Current Price</th>
-	<th>Goal Price</th>
-	<th>Delete</th>
+	<th>종목코드</th>
+	<th>종목명</th>
+	<th>현재가</th>
+	<th>수량</th>
+	<th>목표가</th>
+	<th>수정</th>
+	<th>삭제</th>
 </tr>
 <tr>
     {% for stock in alarm_list %}
     <tr>
-	<td>{{ stock.stock_code.stock_code }}</td>
-	<td>{{ stock.stock_code.stock_name }}</td>
-	<td>{{ stock.qty }}</td>
-	<td>{{ stock.price }}</td>
-	<td>{{ stock.goal_price }}</td>
-	<td><a href="{% url 'alarm_delete' stock.stock_code.stock_code %}" class="btn btn-warning">Del</a></td>
+	<td><label>{{ stock.stock_code.stock_code }}</label></td>
+	<td><label>{{ stock.stock_code.stock_name }}</label></td>
+	<td><label>{{ stock.price|intcomma }}</label></td>
+	<td><input type="text" value="{{ stock.qty|intcomma }}" id="qty_{{ stock.stock_code.stock_code }}" maxlength="4" length="4" /></td>
+	<td><input type="text" id="goal_{{ stock.stock_code.stock_code }}" value="{{ stock.goal_price|intcomma }}" /></td>
+	<td><a href="#" onclick="alarm_update('{{stock.stock_code.stock_code }}');" class="btn btn-success">수정</a></td>
+	<td><a href="{% url 'alarm_delete' stock.stock_code.stock_code %}" class="btn btn-warning">삭제</a></td>
 	</tr>
 	{% endfor %}
 	<tr>
 	<td></td>
 	<td><input type="text" name="stock_name" id="stock_name" /></td>
-	<td><input type="text" name="qty" id="qty" /></td>
-	<td><input type="text" name="price" id="price" /></td>
+	<td><label>0</label></td>
+	<td><input type="text" name="qty" id="qty" maxlength="4" length="4" /></td>
 	<td><input type="text" name="goal_price" id="goal_price" /></td>
+	<td></td>
 	<td></td>
 	</tr>
 </tr>
 </table>
-<button type="submit" class="btn btn-primary">Add</button>
+<button type="submit" class="btn btn-primary">추가</button>
+<a href="{% url 'collect_alarm' %}" class="btn btn-primary">종목수집</button>
 </form>
 <script>
 	$( document ).ready(function() {
@@ -50,6 +55,28 @@
     });
 	});
 	
-</script>  
+</script> 
+<script type="text/javascript">
+	function alarm_update(stock_code)
+	{
+		var qty_code = "qty_"+stock_code;
+		var goal_code = "goal_"+stock_code;
+		var qty = document.getElementById(qty_code).value;
+		var goal = document.getElementById(goal_code).value;
+		
+		var req = $.ajax({
+			url : "/stock/alarm/update/" + stock_code,
+			type : "get",
+			data : {qty_code:qty,goal_code:goal},
+			success : function(r) {
+				alert("저장에 성공했습니다.");
+			},
+			error : function() {
+				alert("저장에 실패했습니다.");
+			}
+		});
+	}
+
+</script> 
 {% endblock %}
 

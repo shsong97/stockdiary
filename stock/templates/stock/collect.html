@@ -1,14 +1,15 @@
 {% extends "stock/base.html" %}
 {% block contents %}
-<h4>Collect stock</h4>
-<form>
-    <input type="text" id="start_key" name="start_key" placeholder="start with stock code">
-    <button type="submit">Submit</button>
+<h4>종목 수집</h4>
+<form class="form-inline">
+    <input class="form-control" type="text" id="start_key" name="start_key" placeholder="start with stock code">
+    <button class="form-control btn btn-primary" type="submit">전송</button>
 </form>
+<hr />
 <table class="table table-bordered table-hover">
 <tr>
-	<th>StockCode</th>
-	<th>StockName</th>
+	<th>종목코드</th>
+	<th>종목명</th>
 </tr>
 {% for stock in stocks %}
 <tr>

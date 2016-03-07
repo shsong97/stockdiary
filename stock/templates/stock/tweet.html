@@ -1,13 +1,14 @@
 
 {% extends "stock/base.html" %}
 {% block contents %}
-<h4>Tweet Send</h4>
+<h4>트윗 발송</h4>
 
-<form method="post" action="{% url 'tweet_send' %}" class="form-inline">
+<form method="post" action="{% url 'tweet_send' %}" class="form">
 {% csrf_token  %}
 <input class="form-control" type="text" id="tweet_id" name="tweet_id" placeholder="@your_tweetid" />
-<input class="form-control" type="text" id="tweet_text" name="tweet_text" />
-<button class="form-control">전송</button>
+<textarea class="form-control" id="tweet_text" name="tweet_text" rows="10" cols="20">
+</textarea>
+<button class="form-control btn btn-primary">전송</button>
 </form>
 {% endblock %}
 
