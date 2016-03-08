@@ -5,11 +5,16 @@
 
 {% for favorite in favorites %}
 <div>
-    <div>
+    <div style="background-color:#eeeeee">
     <a href="{% url 'stock_id' favorite.stock_code.stock_code %}">{{ favorite.stock_code.stock_code }}</a>-{{ favorite.stock_code.stock_name }}
     </div>
     <div>
-    <img src="http://imgfinance.naver.net/chart/item/day7/{{ favorite.stock_code.stock_code }}.png">
+    <!-- 네이버 일봉차트 -->
+    <!--img src="http://imgfinance.naver.net/chart/item/day7/{{ favorite.stock_code.stock_code }}.png" -->
+    <!-- 팍스넷 차트 -->
+    <img src="http://cichart.moneta.kr/pax/chart/candleChart/V201200/paxCandleChartV201200Daily.jsp?abbrSymbol={{ favorite.stock_code.stock_code }}">
+    <img src="http://cichart.moneta.kr/pax/chart/candleChart/V201200/paxCandleChartV201200Weekly.jsp?abbrSymbol={{ favorite.stock_code.stock_code }}&wlog_pip=chart">
+    <img src="http://cichart.moneta.kr/pax/chart/candleChart/V201200/paxCandleChartV201200Monthly.jsp?abbrSymbol={{ favorite.stock_code.stock_code }}&wlog_pip=chart">
     </div>
 </div>
 {% endfor %}

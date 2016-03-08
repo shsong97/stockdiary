@@ -385,13 +385,11 @@ def today_stock(request):
 		'stock_items':stock_items,
 		})
 
-def stock_url(stock_id_code):
+def stock_info_collect(stock_id_code):
 	url = STOCK_URL+stock_id_code
 	html = urllib.urlopen(url)
 	soup = BeautifulSoup(html)
-	stock_view(stock_id_code, soup)
 
-def stock_view(stock_id_code, soup):
 	stock_informs = soup.find_all('em')
 	pbr = per = cns_per = cns_eps = ''
 	for info in stock_informs:
@@ -464,7 +462,7 @@ def gathering(request):
 	objs = Gathering.objects.filter(gather_flag='Y')
 	for obj in objs:
 		print obj.stock_code.stock_code
-		stock_url(obj.stock_code.stock_code)
+		stock_info_collect(obj.stock_code.stock_code)
 
 	return render(request,'stock/gathering.html', {
 		'stocks':objs,
@@ -473,7 +471,7 @@ def gathering(request):
 def collect_id(request, stockid):
 	objs = Stock.objects.filter(stock_code__istartswith=stockid).order_by('stock_code')
 	for obj in objs:
-		stock_url(obj.stock_code)
+		stock_info_collect(obj.stock_code)
 	
 	return render(request,'stock/collect.html', {
 		'stocks':objs,
@@ -491,7 +489,7 @@ def collect(request):
 			for obj in objs:
 				print obj.stock_code
 				stock_id = obj.stock_code
-				stock_url(stock_id)
+				stock_info_collect(stock_id)
 			to_time = datetime.today()
 			print "End time : "
 			print to_time-from_time
