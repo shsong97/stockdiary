@@ -115,11 +115,11 @@ STATICFILES_FINDERS = (
 )
 
 # Parse database configuration from $DATABASE_URL
-# try:
-#     import dj_database_url
-#     DATABASES['default'] =  dj_database_url.config()
-# except:
-#     pass
+try:
+    import dj_database_url
+    DATABASES['default'] =  dj_database_url.config()
+except:
+    pass
 
 
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
