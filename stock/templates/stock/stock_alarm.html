@@ -33,26 +33,25 @@
 	<td><label>0</label></td>
 	<td><input type="text" name="qty" id="qty" maxlength="4" length="4" /></td>
 	<td><input type="text" name="goal_price" id="goal_price" /></td>
-	<td></td>
+	<td><button type="submit" class="btn btn-primary">추가</button></td>
 	<td></td>
 	</tr>
 </tr>
 </table>
-<button type="submit" class="btn btn-primary">추가</button>
+
 <a href="{% url 'collect_alarm' %}" class="btn btn-primary">종목수집</button>
 </form>
 <script>
 	$( document ).ready(function() {
-
-  	$(function() {
-      var stocks = [{% for stock in  stocks %}
-      	"{{ stock.stock_code }} {{ stock.stock_name }}",
-      {% endfor %}
-      ];
-      $( "#stock_name" ).autocomplete({
-        source: stocks
-      });
-    });
+	  	$(function() {
+	      var stocks = [{% for stock in  stocks %}
+	      	"{{ stock.stock_code }} {{ stock.stock_name }}",
+	      {% endfor %}
+	      ];
+	      $( "#stock_name" ).autocomplete({
+	        source: stocks
+	      });
+	    });
 	});
 	
 </script> 

@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^alarm$', views.alarm, name='alarm'),
     url(r'^alarm/delete/(\w+)$', views.alarm_delete, name='alarm_delete'),
     url(r'^alarm/update/(\w+)$', views.alarm_update, name='alarm_update'),
+    url(r'^alarm/get_list$', views.alarm_get_list, name='alarm_get_list'),
     url(r'^collect_alarm$', views.collect_alarm, name='collect_alarm'),
 
     url(r'^favorite$', views.favorite, name='favorite'),

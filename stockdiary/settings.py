@@ -117,7 +117,8 @@ STATICFILES_FINDERS = (
 # Parse database configuration from $DATABASE_URL
 try:
     import dj_database_url
-    DATABASES['default'] =  dj_database_url.config()
+    if not dj_database_url.config()['ENGINE']:
+        DATABASES['default'] =  dj_database_url.config()
 except:
     pass
 

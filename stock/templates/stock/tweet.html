@@ -9,6 +9,25 @@
 <textarea class="form-control" id="tweet_text" name="tweet_text" rows="10" cols="20">
 </textarea>
 <button class="form-control btn btn-primary">전송</button>
+<a class="form-control btn btn-success" id="alrm_get">알림가져오기</a>
 </form>
+
+<script>
+	$(document).ready(function() {
+		$("#alrm_get").click(function() {
+			$.ajax({
+				url : "/stock/alarm/get_list",
+				type : "get",
+				success : function(r) {
+					$("textarea#tweet_text").val(r.message);
+				},
+				error : function() {
+					alert("데이터 전송에 실패했습니다.");
+				}
+			});
+		});
+	});
+
+</script> 
 {% endblock %}
 

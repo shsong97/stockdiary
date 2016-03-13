@@ -1,0 +1,22 @@
+{% extends "stock/base.html" %}
+{% load humanize %}
+{% block contents %}
+<h4>검색종목</h4>
+ 
+<table class="table table-bordered table-hover">
+<tr>
+	<th>종목 코드</th>
+	<th>종목명</th>
+ 
+</tr>
+{% for stock_item in stock_list %}
+<tr>
+	<td><a href="{% url 'stock_id' stock_item.stock_code %}">{{ stock_item.stock_code }}</a></td>
+	<td>{{ stock_item.stock_name }}</td>
+ 
+</tr>
+
+{% endfor %}
+</table>
+{% endblock %}
+

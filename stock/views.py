@@ -1,15 +1,12 @@
 # -.- coding: utf-8 -.-
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.http import HttpResponseRedirect, JsonResponse
+from django.contrib.auth.decorators import login_required
+
 from bs4 import BeautifulSoup
 import urllib
 from stock.models import *
-from django.contrib.auth.decorators import login_required
 from datetime import datetime
-from django.db.models import F
-from django.core.urlresolvers import reverse, reverse_lazy
 
 STOCK_URL = 'http://finance.naver.com/item/main.nhn?code='
 PAX_URL = 'http://paxnet.moneta.co.kr/stock/searchStock/searchStock.jsp?section='
@@ -129,6 +126,10 @@ def stock_search(request):
 		if len(search_word)>6:
 			stock_code = search_word[:6]
 			return HttpResponseRedirect('/stock/id/'+stock_code)
+		else:
+			stock_list = Stock.objects.filter(stock_name__startswith=search_word)
+			return render(request, 'stock/search_list.html',{'stock_list':stock_list})
+		
 
 	return HttpResponseRedirect('/stock/list')
 
@@ -272,6 +273,25 @@ def alarm_update(request, stock_code):
 		alarm1.save()
 		
 	return HttpResponseRedirect('/stock/alarm')
+
+@login_required()
+def alarm_get_list(request):
+	alarm_list = AlarmStock.objects.filter(alarm_user=request.user)
+	message = "아래종목이 목표가에 도달했습니다\n"
+	target_list = ""
+	for ob in alarm_list:
+		if ob.price > ob.goal_price:
+			st_code = str(ob.stock_code)
+			st_name = str(ob.stock_name.encode('utf-8'))
+			st_goal_price = str(ob.goal_price)
+			target_list += st_name + "(" + st_code + ")=>" + st_goal_price + "\n"
+	
+	if target_list=="":
+		message = "목표달성한 종목이 없습니다."
+	else:
+		message += target_list
+	print message
+	return JsonResponse({'message':message})
 
 @login_required()
 def collect_alarm(request):
@@ -461,7 +481,6 @@ def stock_info_collect(stock_id_code):
 def gathering(request):
 	objs = Gathering.objects.filter(gather_flag='Y')
 	for obj in objs:
-		print obj.stock_code.stock_code
 		stock_info_collect(obj.stock_code.stock_code)
 
 	return render(request,'stock/gathering.html', {
