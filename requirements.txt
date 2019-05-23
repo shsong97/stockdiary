@@ -5,7 +5,7 @@ billiard==3.3.0.20
 celery==3.1.18
 dj-database-url==0.3.0
 dj-static==0.0.5
-Django==1.9.4
+django>=1.11.19
 django-toolbelt==0.0.1
 gunicorn==19.5.0
 kombu==3.0.26
